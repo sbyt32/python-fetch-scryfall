@@ -2,31 +2,50 @@ import json
 import os 
 import requests
 from pick import pick
-# https://api.scryfall.com/cards/search?q=
-# https://api.scryfall.com/cards/search?q=${card}&unique=prints
 
 addCards = True
-os.system('cls')
 
-cardToSearch = input("Hello! What card are you looking to add? ")
-
+cardsAdded = []
 
 # Get list of sets from a single card
 def cardSearchSetList(cardName, searchTitle):
-    print(cardName)
     r = requests.get('https://api.scryfall.com/cards/search?q={}&unique=prints'.format(cardName))
     setList = r.json()
     option = []
     for x in setList['data']:
-        option.append([x['set_name'], x['collector_number'], x['set_name'] + '  ||  Set # ' + x['collector_number']])
-    selected, index = pick([i[2] for i in option], searchTitle, '>>')
+        option.append([x['name'], x['set_name'], x['collector_number'], x['set_name'] + '  ||  Set # ' + x['collector_number']])
+    selected, index = pick([i[3] for i in option], searchTitle, '>>')
+    # Replace the last bit with the link, and the first with the set code
     option[index][-1] = setList['data'][index]['uri']
+    option[index][1] = setList['data'][index]['set']
     selected = option[index]
-    # TODO: Write these results to cards.json or something?
-    print(selected)
+
+    # Merge the information together before writing to ./cards.json
+    cardInfo =["name","set", "id", "uri"]
+    cardToStore = dict(zip(cardInfo,selected))
+
+    # These results to cards.json 
+    with open('./cards.ndjson', 'a') as cardDatabase:
+        cardDatabase.write(json.dumps(cardToStore) + '\n')
+    # Repeat to check if they wanna add more cards
+    repeatSearch = pick(["Yes", "No"], "{} has been added to track!\nIs there another card you want to track?".format(cardToStore['name']), ">>")
+    cardsAdded.append(cardToStore['name'])
+    if repeatSearch[1] == 0:
+        cardSearch()
+    else:
+        print(len(cardsAdded))
+        os.system('cls')
+        if len(cardsAdded) > 1:
+            print("The following has been added:\n")
+            for card in cardsAdded:
+                print('{}'.format(card))
+            print("\nDon't forget to query the prices!")
+        else:
+            print("{} has been added to track!\nDon't forget to query the price!".format(cardToStore['name']))
+    
 
 # Find the card!
-def cardSearchList(cardList):
+def cardSearchList(cardList, cardToSearch):
     listQty = cardList['total_cards']
     if listQty == 1:
         cardSearchSetList(cardList['data'][0]['name'], 'Wow, there is exactly one result for {}. Which set are you looking for?'.format(cardToSearch))
@@ -41,10 +60,12 @@ def cardSearchList(cardList):
 
 # Search what you want!
 def cardSearch():
-    if cardToSearch is not "":
+    os.system('cls')
+    cardToSearch = input("Hello! What card are you looking to add? ")
+    if cardToSearch != "":
         r = requests.get('https://api.scryfall.com/cards/search?q={}&pretty=true'.format(cardToSearch))
         cardList = r.json()
-        cardSearchList(cardList)
+        cardSearchList(cardList, cardToSearch)
     else:
         print("Hey! You can't send empty values!")
 
