@@ -1,9 +1,8 @@
 import json
+import ndjson
 import os 
 import requests
 from pick import pick
-
-addCards = True
 
 cardsAdded = []
 
@@ -24,17 +23,36 @@ def cardSearchSetList(cardName, searchTitle):
     cardInfo =["name","set", "id", "uri"]
     cardToStore = dict(zip(cardInfo,selected))
 
-    # These results to cards.json 
-    with open('./cards.ndjson', 'a') as cardDatabase:
-        cardDatabase.write(json.dumps(cardToStore) + '\n')
-    # Repeat to check if they wanna add more cards
-    repeatSearch = pick(["Yes", "No"], "{} has been added to track!\nIs there another card you want to track?".format(cardToStore['name']), ">>")
-    cardsAdded.append(cardToStore['name'])
+    # Double Check if the card does not already exist on the search.
+    with open('./cards.ndjson') as cardRead:
+        duplicateCard = False
+        reader = ndjson.load(cardRead)
+        for card in reader:
+            if card == cardToStore:
+                duplicateCard = True
+                print('Dupes!')
+                break
+        if duplicateCard == True:
+            repeatSearch = pick(["Yes", "No"], "{} ({}) is already being tracked!\nIs there another card you want to track?".format(cardToStore['name'], cardToStore['set'].upper()), ">>")
+            if repeatSearch[0] == "Yes":
+                cardSearch()
+            elif len(cardsAdded) >= 1:
+                appendCard(None)
+            elif len(cardsAdded) == 0 and repeatSearch[0] == "No":
+                print('No cards were added!')
+        else:
+            appendCard(cardToStore)
+
+def appendCard(cardToStore):
+    if cardToStore != None:
+        with open('./cards.ndjson', 'a') as cardDatabase:
+            cardDatabase.write(json.dumps(cardToStore)+'\n')
+        repeatSearch = pick(["Yes", "No"], "{} ({}) has been added to track!\nIs there another card you want to track?".format(cardToStore['name'], cardToStore['set'].upper()), ">>")
+        cardsAdded.append(cardToStore['name'])
+
     if repeatSearch[1] == 0:
         cardSearch()
     else:
-        print(len(cardsAdded))
-        os.system('cls')
         if len(cardsAdded) > 1:
             print("The following has been added:\n")
             for card in cardsAdded:
@@ -42,7 +60,7 @@ def cardSearchSetList(cardName, searchTitle):
             print("\nDon't forget to query the prices!")
         else:
             print("{} has been added to track!\nDon't forget to query the price!".format(cardToStore['name']))
-    
+
 
 # Find the card!
 def cardSearchList(cardList, cardToSearch):
@@ -60,12 +78,17 @@ def cardSearchList(cardList, cardToSearch):
 
 # Search what you want!
 def cardSearch():
+    # Clean loops
     os.system('cls')
+    cardToSearch = ""
     cardToSearch = input("Hello! What card are you looking to add? ")
     if cardToSearch != "":
         r = requests.get('https://api.scryfall.com/cards/search?q={}&pretty=true'.format(cardToSearch))
         cardList = r.json()
-        cardSearchList(cardList, cardToSearch)
+        if cardList['object'] == 'error':
+            print('There is no results for {}, please try again!'.format(cardToSearch))
+        else:
+            cardSearchList(cardList, cardToSearch)
     else:
         print("Hey! You can't send empty values!")
 

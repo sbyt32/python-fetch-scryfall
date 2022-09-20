@@ -27,8 +27,8 @@ with open('./cards.ndjson', 'r') as cardDatabase:
         # Updating all the information, also makes file if does not exist
         with open(filePath, 'a', newline='') as cardToCSV:
             writer = csv.writer(cardToCSV, quoting=csv.QUOTE_MINIMAL)
+            # TODO: Add support for EURO and TIX
             toParse = [fetchedTime, cardSearched['prices']['usd']]
-            
             # Time check, don't update if less than a day
             epochTime = pathlib.Path(filePath).stat().st_mtime
             if fetchedTime.timestamp() - epochTime < 5:
@@ -42,4 +42,3 @@ with open('./cards.ndjson', 'r') as cardDatabase:
             writer.writerow(toParse)                
         # To not overload the API
         sleep(.2)
-        
