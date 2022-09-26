@@ -8,7 +8,7 @@ cardsAdded = []
 
 # Get list of sets from a single card
 def cardSearchSetList(cardName, searchTitle):
-    r = requests.get('https://api.scryfall.com/cards/search?q={}&unique=prints'.format(cardName))
+    r = requests.get('https://api.scryfall.com/cards/search?q=%21"{}"+include%3Aextras&unique=prints'.format(cardName))
     setList = r.json()
     option = []
     for x in setList['data']:
@@ -30,7 +30,6 @@ def cardSearchSetList(cardName, searchTitle):
         for card in reader:
             if card == cardToStore:
                 duplicateCard = True
-                print('Dupes!')
                 break
         if duplicateCard == True:
             repeatSearch = pick(["Yes", "No"], "{} ({}) is already being tracked!\nIs there another card you want to track?".format(cardToStore['name'], cardToStore['set'].upper()), ">>")
