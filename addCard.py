@@ -1,3 +1,4 @@
+from genericpath import exists
 import json
 import ndjson
 import os 
@@ -22,7 +23,8 @@ def cardSearchSetList(cardName, searchTitle):
     # Merge the information together before writing to ./cards.json
     cardInfo =["name","set", "id", "uri"]
     cardToStore = dict(zip(cardInfo,selected))
-
+    if not os.path.exists('./cards.ndjson'):
+        os.makedirs('/cards.ndjson')
     # Double Check if the card does not already exist on the search.
     with open('./cards.ndjson') as cardRead:
         duplicateCard = False
