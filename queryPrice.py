@@ -5,17 +5,10 @@ import requests
 import csv
 import pathlib
 import re
+from sanitizeString import sanitizeString
 # For Date
 import datetime
 fetchedTime = datetime.datetime.now()
-
-def sanitizeString(name):
-    name = re.sub("[',]","",name)
-    name = re.sub("['\s]","_", name)
-    name = name.lower()[slice(9)]
-    if re.search("$_",name):
-        name = name.rstrip(name[-1])
-    return name
         
 
 def checkSetPromo(set,id):
@@ -45,11 +38,16 @@ with open('./cards.ndjson', 'r') as cardDatabase:
         # Fetching the info from scryfall
         r = requests.get(card['uri'])
         cardSearched = r.json()
+        # ? Can this be done more efficently?
+        usd = cardSearched['prices']['usd']
+        usdFoil = cardSearched['prices']['usd_foil']
+        eur = cardSearched['prices']['eur']
+        eurFoil = cardSearched['prices']['eur_foil']
+        tix = cardSearched['prices']['tix']
         # Updating all the information, also makes file if does not exist
         with open(filePath, 'a', newline='') as cardToCSV:
             writer = csv.writer(cardToCSV, quoting=csv.QUOTE_MINIMAL)
-            # TODO: Add support for EURO and TIX
-            toParse = [fetchedTime, cardSearched['prices']['usd']]
+            toParse = [fetchedTime, usd, usdFoil, eur,eurFoil,tix]
             # Time check, don't update if less than a day
             epochTime = pathlib.Path(filePath).stat().st_mtime
             if fetchedTime.timestamp() - epochTime < 5:
