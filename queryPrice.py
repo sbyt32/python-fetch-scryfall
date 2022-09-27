@@ -52,7 +52,7 @@ with open('./cards.ndjson', 'r') as cardDatabase:
             epochTime = pathlib.Path(filePath).stat().st_mtime
             if fetchedTime.timestamp() - epochTime < 5:
                 print('Now tracking: {} from {}!'.format(cardName, checkSetPromo(cardSet,cardID)))
-            elif fetchedTime.timestamp() - epochTime < 86400: 
+            elif fetchedTime.timestamp() - epochTime < 82800: 
                 print('It is too soon to update! Check back tomorrow!')
                 sleep(.2)
                 continue # goes back to start of loop.
