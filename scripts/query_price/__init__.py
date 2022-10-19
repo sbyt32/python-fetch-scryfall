@@ -1,0 +1,2 @@
+from scripts.query_price.check_set_promo import check_set_promo
+from scripts.query_price.parse_response_query import append_cards
