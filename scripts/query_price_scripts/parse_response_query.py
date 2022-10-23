@@ -21,6 +21,10 @@ def append_cards(r:list, path:str):
             eur_foil,
             mtgo
         ]
+        writer.writerow(to_parse)
+        card_write_to_csv.close()
         pass # TODO: Here should the check if it's less than 24hr
              # ? May not be nessecary, if running through crontab?
+
+    
              

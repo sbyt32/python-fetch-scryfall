@@ -1,5 +1,5 @@
 # This should just be a general folder for all pulled cards
 /Tracking
 cards.ndjson
-/__pycache__
+*/__pycache__
 

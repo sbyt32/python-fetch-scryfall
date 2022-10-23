@@ -8,5 +8,4 @@ def send_response(url:str):
         card_list = r.json()
         if card_list['object'] == 'error':
             pass # ? https://scryfall.com/docs/api/errors Maybe look at the warnings?
-        return
-        pass
+        return card_list

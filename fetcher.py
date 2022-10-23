@@ -2,4 +2,4 @@
 import scripts
 
 if __name__ == "__main__":
-    pass
+    scripts.add_card()

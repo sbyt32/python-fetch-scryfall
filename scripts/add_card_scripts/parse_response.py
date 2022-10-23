@@ -1,7 +1,7 @@
 def parse_list(list):
     list_qty = list['total_cards']
     if list_qty == 1:
-        pass # Go to a script that 
+        pass # This needs to go and fetch a specific card and ask you which set you want it from.
              # ? Maybe go do this in another script?
     elif list_qty > 1:
         pass # Use pick to maybe run a script that gives out a list of cards?
