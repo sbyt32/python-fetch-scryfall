@@ -1,9 +1,7 @@
 import csv
 import arrow
 import os 
-# local = 
 
-# print(arrow.utcnow().format('MM-DD-YY'))
 
 def append_cards(r:list, path:str):
     usd         =   r['prices']['usd']
@@ -20,7 +18,7 @@ def append_cards(r:list, path:str):
     with open(path, 'a', newline='') as card_write_to_csv:
         writer = csv.writer(card_write_to_csv, quoting=csv.QUOTE_MINIMAL)
         to_parse = [
-            arrow.utcnow().format('MM-DD-YY'),
+            arrow.utcnow().format('YYYY-MM-DD'),
             usd,
             usd_foil,
             eur,
