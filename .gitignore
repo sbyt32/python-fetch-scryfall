@@ -3,3 +3,5 @@
 cards.ndjson
 */__pycache__
 
+data/
+*/*/__pycache__
