@@ -1,4 +1,5 @@
 import os
+from time import sleep
 import ndjson
 import scripts
 
@@ -15,4 +16,5 @@ def query_price():
             if not os.path.exists(f'data/tracking/{card_set}'):
                 os.makedirs(f'data/tracking/{card_set}')
             r = scripts.util_send_response(cards['uri'])
+            sleep(.2)
             scripts.query_add_data(r, file_path)
