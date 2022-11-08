@@ -2,19 +2,17 @@ import os
 from time import sleep
 import ndjson
 import scripts
+import psycopg2
+from variables import HOST, USER, PASS, DBNAME
 
 def query_price():
-    with open('data/cards_to_query.ndjson', 'r') as card_database:
-        cards_to_query = ndjson.reader(card_database)
+    conn = psycopg2.connect(dbname = DBNAME, user=USER, password=PASS, host=HOST)
+    cur = conn.cursor()
 
-        for cards in cards_to_query:
-            card_name = cards['name']
-            card_set = cards['set']
-            card_id = cards['id']
-            file_path = f'data/tracking/{card_set}/{card_id}_{scripts.util_sanitize_string(card_name)}.csv'
+    cur.execute("SELECT uri FROM card_info.info")
+    records = cur.fetchall()
 
-            if not os.path.exists(f'data/tracking/{card_set}'):
-                os.makedirs(f'data/tracking/{card_set}')
-            r = scripts.util_send_response(cards['uri'])
-            sleep(.2)
-            scripts.query_add_data(r, file_path)
+    for uri in records:
+        r = scripts.util_send_response(uri[0])
+        sleep(.2)
+        scripts.query_add_data(r)

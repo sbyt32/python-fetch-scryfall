@@ -53,8 +53,3 @@ def append_query(query:dict):
                         writer.writerow(query)
                         # Here is where repeat search would be
                         # ? Should I put that as a separate script?
-
-# SELECT card_data.set, card_info.info.name, date, usd, usd_foil, euro, euro_foil, tix FROM card_data
-# JOIN card_info.info 
-# ON card_data.set = card_info.info.set
-# AND card_data.id = card_info.info.id;

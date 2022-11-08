@@ -12,9 +12,9 @@ def _set_up():
     conn = psycopg2.connect(dbname = DBNAME, user=USER, password=PASS, host=HOST)
     cur = conn.cursor()
     
-    # Schema to organize information easier
+    # * Schema to organize information easier
     cur.execute("CREATE SCHEMA IF NOT EXISTS card_info")
-    # Store the cards you like to track
+    # * Store the cards you like to track card_info.info
     cur.execute(
     """
         CREATE TABLE IF NOT EXISTS card_info.info(
@@ -24,7 +24,7 @@ def _set_up():
             uri text
         )
     """)
-    # Card data
+    # * Card data
     cur.execute(
     """CREATE TABLE IF NOT EXISTS card_data 
     (
@@ -38,11 +38,11 @@ def _set_up():
         tix float(2)
     )""")
 
-    # Set names, etc
+    # * Set names, etc
     cur.execute(
     """CREATE TABLE IF NOT EXISTS card_info.sets
     (
-        set varchar(12) NOT NULL,
+        set varchar(12) NOT NULL PRIMARY KEY,
         set_full text NOT NULL,
         release_date date
     )""")
@@ -61,4 +61,15 @@ def _set_up():
                         '{sets['released_at']}'
                     )
                     """)
+
+    # * This creates the card_info.groups table, which organizes popular groupings, such as "fetchland" or "shockland".
+    cur.execute(
+        """ CREATE TABLE IF NOT EXISTS card_info.groups
+        (
+            id text NOT NULL,
+            set varchar(12) NOT NULL,
+            groups text[]
+        
+        )""")
+
     conn.commit()
