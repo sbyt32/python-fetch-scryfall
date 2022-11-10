@@ -1,10 +1,17 @@
-from time import sleep
 import scripts
 import psycopg2
-from variables import HOST, USER, PASS, DBNAME
+import scripts.config_reader
+from time import sleep
+
 
 def query_price():
-    conn = psycopg2.connect(dbname = DBNAME, user=USER, password=PASS, host=HOST)
+    config = scripts.config_reader.config_reader()
+
+    conn = psycopg2.connect(host        =   config['CONNECT']['host'],
+                            user        =   config['CONNECT']['user'],
+                            password    =   config['CONNECT']['pass'],
+                            dbname      =   config['CONNECT']['dbname']
+                            )
     cur = conn.cursor()
 
     cur.execute("SELECT uri FROM card_info.info")

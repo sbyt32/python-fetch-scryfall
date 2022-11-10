@@ -3,12 +3,9 @@ import re
 import os
 import ndjson
 import psycopg2
-from variables import USER, PASS, DBNAME
+import scripts.config_reader
 
 # Localhost functions perfectly fine on the server.
-conn = psycopg2.connect(dbname = DBNAME, user=USER, password=PASS, host='localhost')
-
-cur = conn.cursor()
 
 def use_regex(input_text):
     # ? What is this for again?
@@ -17,10 +14,19 @@ def use_regex(input_text):
 
 def null_check(value):
     if value == '':
-        return 'NULL'
-    return f'{value}'
+        return None
+    return value
 
 def update_old_data():
+    config = scripts.config_reader.config_reader()
+    HOST = config['CONNECT']['host']
+    USER = config['CONNECT']['user']
+    PASS = config['CONNECT']['pass']
+    DBNAME = config['CONNECT']['dbname']
+    conn = psycopg2.connect(dbname = DBNAME, user=USER, password=PASS, host=HOST)
+
+    cur = conn.cursor()
+
 # Due to changing from .csv to a postgresql database, need to transform the filename a lil.
     if not os.path.exists('data/tracking_old'):
         os.rename('data/tracking/', 'data/tracking_old')
@@ -51,22 +57,23 @@ def update_old_data():
                 next(reader)
                 for cards in reader:
                     cur.execute(
-                    f"""
+                    """
                     INSERT INTO card_data (set, id, date, usd, usd_foil, euro, euro_foil, tix) 
                     
-                    VALUES (
-                        '{set_id[0]}',
-                        '{set_id[1]}',
-                        '{cards[0]}',
-                        {null_check(cards[1])},
-                        {null_check(cards[2])},
-                        {null_check(cards[3])},
-                        {null_check(cards[4])},
-                        {null_check(cards[5])}
-                        )
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
 
                     ON CONFLICT DO NOTHING
-                    """)
+                    """, 
+                    (   
+                        set_id[0],
+                        set_id[1],
+                        null_check(cards[1]),
+                        null_check(cards[2]),
+                        null_check(cards[3]),
+                        null_check(cards[4]),
+                        null_check(cards[5])
+                        )
+                    )
 
     # Place all the information regarding card data into the file.
     with open('data/cards_to_query.ndjson') as cards_to_query:
@@ -75,17 +82,12 @@ def update_old_data():
 
             # * See if the table exists, already
             if bool(cur.execute(f"SELECT * from card_info.info where id='{cards['id']}' AND set='{cards['set']}'")) == False:
-            
-                cur.execute(f"""
+
+                cur.execute("""
                 INSERT INTO card_info.info (name, set, id, uri)
 
-                VALUES (
-                '{cards['name']}',
-                '{cards['set']}',
-                '{cards['id']}',
-                '{cards['uri']}'
-                ) 
+                VALUES (%s,%s,%s,%s) 
                 ON CONFLICT DO NOTHING 
-                """)
+                """, (cards['name'],cards['set'],cards['id'],cards['uri']))
 
     conn.commit()

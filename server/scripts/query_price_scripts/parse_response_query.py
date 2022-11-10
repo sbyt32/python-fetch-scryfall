@@ -1,15 +1,17 @@
-import csv
 import arrow
-import os
 import psycopg2
 import psycopg2.errors
-from variables import HOST, USER, PASS, DBNAME
-
-
+from scripts.config_reader import config_reader
 
 def append_cards(r:list):
+    config = config_reader()
 
-    conn = psycopg2.connect(dbname = DBNAME, user=USER, password=PASS, host=HOST)
+    conn = psycopg2.connect(
+        host    =   config['CONNECT']['host'],
+        user    =   config['CONNECT']['user'],
+        password=   config['CONNECT']['pass'],
+        dbname  =   config['CONNECT']['dbname']
+        )
     cur = conn.cursor()
     set         =   r['set']
     id          =   r['collector_number']
@@ -22,7 +24,7 @@ def append_cards(r:list):
         # TODO: Here should the check if it's less than 24hr
         # ? May not be nessecary, if running through crontab?
         
-    # set, id, date, usd, usd_foil, eur, eur_foil, tix
+
     insert_values = """
         INSERT INTO card_data (set, id, date, usd, usd_foil, euro, euro_foil, tix) 
 
