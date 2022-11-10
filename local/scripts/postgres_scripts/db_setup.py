@@ -1,5 +1,5 @@
 import psycopg2
-import scripts
+import scripts.request_wrapper
 import re
 from operator import itemgetter
 from variables import HOST, USER, PASS, DBNAME
@@ -9,6 +9,15 @@ def apost_fix(set:str):
     return set
 
 def _set_up():
+
+    # * Have to create a database first, to separate everything. 
+    conn = psycopg2.connect(user=USER, password=PASS, host=HOST)
+    cur = conn.cursor()
+
+    cur.execute(f"CREATE DATABASE IF NOT EXISTS {DBNAME}")
+    conn.commit()
+    conn.close()
+
     conn = psycopg2.connect(dbname = DBNAME, user=USER, password=PASS, host=HOST)
     cur = conn.cursor()
     
@@ -47,7 +56,7 @@ def _set_up():
         release_date date
     )""")
 
-    resp = scripts.util_send_response('https://api.scryfall.com/sets')['data']
+    resp = scripts.request_wrapper.send_response('https://api.scryfall.com/sets')['data']
     for sets in resp:
         if not sets['digital']:
             if bool(cur.execute(f"SELECT * from card_info.sets WHERE set='{sets['code']}' AND set_full='{apost_fix(sets['name'])}' ")) == False:

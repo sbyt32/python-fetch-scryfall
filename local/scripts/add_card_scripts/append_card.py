@@ -32,18 +32,16 @@ def append_query(query:dict):
                 cur = connect.cursor()
                 # * Check if it exists already. If == 0, then write it.
                 if bool(cur.execute(f"SELECT * from card_info.info where id='{query['id']}' AND set='{query['set']}'")) == 0:
-
-                    cur.execute(f"""
+                    
+                    add_info_to_postgres = """
                     INSERT INTO card_info.info (name, set, id, uri)
 
-                    VALUES (
-                    '{query['name']}',
-                    '{query['set']}',
-                    '{query['id']}',
-                    '{query['uri']}'
-                    ) 
+                    VALUES (%s,%s,%s,%s) 
                     ON CONFLICT DO NOTHING 
-                    """)
+                    """
+
+                    
+                    cur.execute(add_info_to_postgres, (query['name'], query['set'], query['id'], query['uri']))
                     
                     connect.commit()
 
