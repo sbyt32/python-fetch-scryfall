@@ -9,3 +9,4 @@
     ndjson
     requests
     pick
+    psycopg2
