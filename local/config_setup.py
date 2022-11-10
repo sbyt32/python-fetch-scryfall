@@ -5,12 +5,7 @@ import os
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-if os.path.exists('config.ini'):
-    config_create = input("config.ini already exists, replace? y/n ")
-    if not config_create == "y" and not config_create == "n":
-        print("Invalid Input, type y or n")
-
-if not os.path.exists('config.ini') or config_create == "y":
+if not os.path.exists('config.ini') or os.path.exists('config.ini') and input("config.ini already exists, replace? y/n ").lower() == "y" or "yes":
     config['DEFAULT']           = {}
     config['CONNECT']           = {}
     config['DEFAULT']['path']   = ""
@@ -21,3 +16,5 @@ if not os.path.exists('config.ini') or config_create == "y":
     config['CONNECT']["dbname"] = input("Database: (Default: price_tracker) ") or "price_tracker"
     with open('config.ini', 'w') as config_update:
         config.write(config_update)
+else:
+    print("Exiting setup...")
