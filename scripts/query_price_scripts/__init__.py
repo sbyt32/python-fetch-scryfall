@@ -1,1 +1,0 @@
-from scripts.query_price_scripts.parse_response_query import append_cards as query_add_data

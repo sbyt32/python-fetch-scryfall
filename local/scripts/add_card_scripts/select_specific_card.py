@@ -22,7 +22,4 @@ def select_card(query:str):
     ]
     card_details = [select['name'], select['set'], select['collector_number'], select['uri']]
     return dict(zip(card_info, card_details))
-    # for 
-
-        # Get the information, return a result that passes on the information.
-    pass
+    # Get the information, return a result that passes on the information.
