@@ -12,14 +12,15 @@ class PrettyJSONResp(Response):
 
 router = APIRouter(
     prefix="/card",
+    tags=["Get some card info"],
     dependencies=[Depends(select_access)],
     responses={404: {"description": "Not found"}},
 )
 
 
-@router.get("/", status_code=200, response_class=PrettyJSONResp)
-async def read_items():
-    raise HTTPException(status_code=400, detail="Buddy this ain't the right way to get the cards.")
+# @router.get("/", status_code=200, response_class=PrettyJSONResp)
+# async def read_items():
+#     raise HTTPException(status_code=400, detail="Buddy this ain't the right way to get the cards.")
 
 
 @router.get("/{set}/{id}")

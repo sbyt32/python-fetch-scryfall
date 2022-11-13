@@ -1,7 +1,10 @@
 import configparser
 import os
 import logging
+import logging_details
+logging_details.log_setup()
 log = logging.getLogger()
+
 def config_reader():
 
     config = configparser.ConfigParser()
@@ -11,10 +14,10 @@ def config_reader():
         try: 
             config['CONNECT']
         except KeyError:
-            log.critical("Connect info does not exist! Please run config_setup.py")
+            log.critical("Missing connect info! Please run config_setup.py")
             raise SystemExit()
         else:
             return config
     else:
-        log.critical("Error: Config file does not exist! Please run config_setup.py")
-        raise SystemExit()    
+        log.critical("Config file does not exist! Please run config_setup.py")
+        raise SystemExit()
