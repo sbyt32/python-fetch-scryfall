@@ -1,23 +1,38 @@
-import scripts
-import psycopg2
-import scripts.config_reader
+import scripts.connect.to_database as to_database
+import scripts.connect.to_requests_wrapper as to_requests
+import arrow
+import logging
 from time import sleep
+log = logging.getLogger()
 
 
 def query_price():
-    config = scripts.config_reader.config_reader()
-
-    conn = psycopg2.connect(host        =   config['CONNECT']['host'],
-                            user        =   config['CONNECT']['user'],
-                            password    =   config['CONNECT']['pass'],
-                            dbname      =   config['CONNECT']['dbname']
-                            )
-    cur = conn.cursor()
+    conn, cur = to_database.connect()
 
     cur.execute("SELECT uri FROM card_info.info")
     records = cur.fetchall()
 
+    log.debug(f"Parsing {len(records)} cards.")
     for uri in records:
-        r = scripts.send_response(uri[0])
+        r = to_requests.send_response(uri[0])
         sleep(.2)
-        scripts.append_cards(r)
+        insert_values = """
+            INSERT INTO card_data (set, id, date, usd, usd_foil, euro, euro_foil, tix) 
+
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+
+            """
+        cur.execute(
+        insert_values, (
+            r['set'],
+            r['collector_number'],
+            arrow.utcnow().format('YYYY-MM-DD'),
+            r['prices']['usd'],
+            r['prices']['usd_foil'],
+            r['prices']['eur'],
+            r['prices']['eur_foil'],
+            r['prices']['tix'],
+        ))
+
+    conn.commit()
+    log.debug(f"Parsed all {len(records)} cards")
