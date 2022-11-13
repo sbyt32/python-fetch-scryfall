@@ -30,9 +30,11 @@ It is assumed that `local/config_setup.py` and `local/main.py` has been ran at l
 
 If there is legacy data, `fetcher.py` will transform the data and place it into the PostgreSQL database. If that is the case, please rerun the script as it will not fetch the information for today otherwise. 
 
-## Packages
+## Libraries
     arrow
     ndjson
     requests
     pick
     psycopg2-binary
+    fastapi
+    hypercorn
