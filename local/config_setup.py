@@ -5,7 +5,7 @@ import os
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-if not os.path.exists('config.ini') or os.path.exists('config.ini') and input("config.ini already exists, replace? y/n ").lower() == "y" or "yes":
+if not os.path.exists('config.ini') or os.path.exists('config.ini') and input("config.ini already exists, replace? y/n ").lower() in ["y", "yes"]:
     config['DEFAULT']           = {}
     config['CONNECT']           = {}
     config['DEFAULT']['path']   = ""
