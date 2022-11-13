@@ -1,18 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException
 import scripts.connect.to_database as to_database
 import scripts.connect.to_requests_wrapper as to_requests_wrapper
 import logging
 log = logging.getLogger()
 router = APIRouter()
 
-
+# ? Should internal files 
 
 # Add a card
 @router.post(
-    "/add/{url}",
-    tags=["Track a new card"]
+    "/add/{url}"
     )
-async def update_item(url: str):
+async def add_card_to_track(url: str):
 
     resp = to_requests_wrapper.send_response(f"https://api.scryfall.com/cards/{url}")
 
@@ -25,7 +24,7 @@ async def update_item(url: str):
             )
 
     except KeyError as e:
-
+        # ? What does this look like, again?
         log.error(f"KeyError:{e}")
 
     else:
@@ -39,7 +38,7 @@ async def update_item(url: str):
 
                 VALUES (%s,%s,%s,%s)
                 """
-                
+            # ? Uncomment below in production.
             # cur.execute(add_info_to_postgres, (resp['name'], resp['set'], resp['id'], resp['uri']))
             # conn.commit()
 
@@ -49,3 +48,17 @@ async def update_item(url: str):
         else:
             log.info(f'Already tracking: {resp["name"]} from {resp["set_name"]}')
             return f'Already tracking: {resp["name"]} from {resp["set_name"]}'
+
+@router.delete("/remove/{set}/{id}")
+async def remove_card(set:str, id:str):
+    conn, cur = to_database.connect()
+
+    cur.execute("SELECT * from card_info.info where id = %s AND set = %s", (id, set))
+    card = cur.fetchone()
+    if not card:
+        log.warning(f"Failed to delete card with id: {id} and set: {set}")
+    else:
+        log.info(f"Deleting: {card[0]} from set: {str(card[1]).upper()}")
+        cur.execute("DELETE FROM card_info.info WHERE id = %s AND set = %s", (id,set))
+        # ? Uncomment below in production.
+        # conn.commit()

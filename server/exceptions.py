@@ -15,6 +15,6 @@ async def frank_exception_handler(request: Request, exc: frank_exception): # Yes
         content={
             "resp": "error",
             "status": 400,
-            "message": "The request failed due to being at root. Try passing parameters.",
+            "message": "The request failed due to being at root. If you're just testing if it works, yeah it works.",
         }
     )

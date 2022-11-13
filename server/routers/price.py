@@ -3,7 +3,6 @@ from dependencies import price_access
 from typing import Union
 import scripts.connect.to_database as to_database
 from routers.pretty import PrettyJSONResp
-import json
 import logging
 import re
 log = logging.getLogger()
@@ -17,13 +16,13 @@ router = APIRouter(
 
 @router.get("/", status_code=200, response_class=PrettyJSONResp)
 async def read_items():
-    raise HTTPException(status_code=404, detail="Buddy this ain't the right way to get the price data.")
+    raise HTTPException(status_code=400, detail="Buddy this ain't the right way to get the price data.")
 
 
 @router.get("/by/{date}",  description="Get the price data for the a certain day. YYYY-MM-DD format.")
 async def get_single_day_data(date:str):
     if not re.match(r'^\d\d\d\d-(0?[1-9]|[1][0-2])-(0?[1-9]|[12][0-9]|3[01])', date):
-        raise HTTPException(status_code=400, detail="Incorrect")
+        raise HTTPException(status_code=400, detail="Incorrect format.")
     else:
         conn, cur = to_database.connect()
         cur.execute("""

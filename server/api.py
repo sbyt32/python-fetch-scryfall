@@ -1,5 +1,5 @@
 import os
-from fastapi import Depends, FastAPI, Response, status, Request
+from fastapi import Depends, FastAPI, Response, status
 from exceptions import frank_exception, frank_exception_handler
 from dependencies import write_access, select_access
 from routers import card, price
@@ -19,11 +19,13 @@ app.include_router(price.router)
 app.include_router(
     admin.router,
     prefix="/admin",
+    tags=["Handle card data"],
     dependencies=[Depends(write_access)],
     responses={418: {"description": "I'm a teapot"}}
+    
 )
 
-@app.get("/", status_code=200)
+@app.get("/", status_code=200, tags=["Test Connection"])
 async def root(response: Response):
     if os.path.exists('config.ini'):
         raise frank_exception
