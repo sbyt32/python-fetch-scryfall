@@ -2,8 +2,8 @@ import os
 from fastapi import Depends, FastAPI, Response, status
 from exceptions import frank_exception, frank_exception_handler
 from dependencies import write_access, select_access
-from routers import card, price
-from internal import admin
+from routers import return_card_info, return_price_info
+from routers.internal import admin
 # Logging Information
 import logging
 # ? For some reason, scripts/config_reader.py having the logging setup works fine. Need to know why eventually. Commented out for now
@@ -14,16 +14,9 @@ log.setLevel(logging.INFO)
 
 # * Accessing the database should require the select_access token
 app = FastAPI(dependencies=[Depends(select_access)])
-app.include_router(card.router)
-app.include_router(price.router)
-app.include_router(
-    admin.router,
-    prefix="/admin",
-    tags=["Handle card data"],
-    dependencies=[Depends(write_access)],
-    responses={418: {"description": "I'm a teapot"}}
-    
-)
+app.include_router(return_card_info.router)
+app.include_router(return_price_info.router)
+app.include_router(admin.router)
 
 @app.get("/", status_code=200, tags=["Test Connection"])
 async def root(response: Response):

@@ -1,5 +1,7 @@
 import json
 from fastapi import Response
+
+
 class PrettyJSONResp(Response):
     media_type = "application/json"
 

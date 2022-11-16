@@ -1,9 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
+from dependencies import write_access
 import scripts.connect.to_database as to_database
 import scripts.connect.to_requests_wrapper as to_requests_wrapper
 import logging
 log = logging.getLogger()
-router = APIRouter()
+
+router = APIRouter(
+    prefix="/admin",
+    tags=["Handle card data"],
+    dependencies=[Depends(write_access)],
+    )
 
 # ? Should internal files 
 
@@ -20,7 +26,7 @@ async def add_card_to_track(url: str):
         if resp['object'] != "card":
             log.error("Not a card!")
             raise HTTPException(
-                status_code=404, detail="This is not a card!", status=404
+                status_code=404, detail="This is not a card!"
             )
 
     except KeyError as e:

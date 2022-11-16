@@ -1,6 +1,7 @@
 # Primary script
 import arrow
-import scripts.query_price as query_price
+# from fetcher.query_price import query_price
+from scripts.query_price import query_price
 import scripts.config_reader as config_reader
 import logging
 import logging_details
@@ -14,10 +15,12 @@ if __name__ == "__main__":
     try:
         config['CONNECT']['db_exists']
     except KeyError:
-        raise SystemExit("Error: Failed to confirm db exists! Please run set_up.py")
+        log.error("Cannot confirm that the database exist. Does config.ini exist?")
+        raise SystemExit
     else:
         if not config['CONNECT'].getboolean('db_exists') == True:
-            raise SystemExit("Error: Database does not exist according to config.ini. ")
+            log.error("Database does not exist according to config.ini.")
+            raise SystemExit()
         else:
             log.info(f"Fetching card data on {arrow.utcnow().format('YYYY-MM-DD')}")
-            query_price.query_price()
+            query_price()
