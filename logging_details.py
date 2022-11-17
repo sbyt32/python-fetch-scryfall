@@ -9,13 +9,11 @@ CONSOLE_FORMAT  =   "%(asctime)s | %(levelname)-8s | %(filename)-20s | %(message
 FILE_FORMAT     =   "%(asctime)s | %(levelname)-8s | %(filename)-20s | %(message)s"
 ERROR_FORMAT    =   "%(asctime)s | %(levelname)-8s | %(pathname)-20s | %(lineno)-8s | %(message)s"
 
+# TODO:
+# EXCEPT_FORMAT   =   "%(asctime)s | %(levelname)-8s | %(filename)-20s | %(message)s"
 
-ERROR_FORMAT_COOKIE = "%(asctime)s | %(levelname)-8s | %(message)s | "
 
 log_file_info   = f"logs/{local.format('MMM_DD_YY').lower()}.log"
-log_file_debug  = f"logs/debug/{local.format('MMM_DD_YY').lower()}.log"
-log_file_error  = f"logs/error/{local.format('MMM_DD_YY_hh_mm_a').lower()}.log"
-
 
 def log_setup():
     log_config = {
@@ -30,10 +28,7 @@ def log_setup():
             },
             'file_format_error': {
                 'format': ERROR_FORMAT
-            },
-            'file_format_error_cookie':{
-                'format': ERROR_FORMAT_COOKIE
-            },
+            }
         },
         'handlers': {
             'console': {
@@ -51,20 +46,13 @@ def log_setup():
                 'class': 'logging.FileHandler',
                 'level': logging.DEBUG,
                 'formatter': 'file_format',
-                'filename': log_file_debug,
+                'filename': log_file_info,
             },
             'file_error': {
                 'class': 'logging.FileHandler',
                 'level': logging.ERROR,
                 'formatter': 'file_format_error',
-                'filename': log_file_error,
-            },
-            'file_error_cookie': {
-                'class': 'logging.FileHandler',
-                'level': logging.ERROR,
-                'formatter': 'file_format_error_cookie',
-                'filename': log_file_error,
-
+                'filename': log_file_info,
             }
         },
         'root': {
@@ -86,16 +74,6 @@ def log_setup():
                     'file_info',
                     'file_debug',
                     'file_error'
-                ],
-            },
-            'Preordain': {
-                'level': logging.DEBUG,
-                'propogate': False,
-                'handlers': [
-                    'console',
-                    'file_info',
-                    'file_debug',
-                    'file_error_cookie'
                 ],
             }
         }

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
+from psycopg2.errors import DatetimeFieldOverflow
 from dependencies import price_access
 from typing import Union
 import scripts.connect.to_database as to_database
@@ -23,29 +24,31 @@ async def get_single_day_data(date:str):
     if not re.match(r'^\d\d\d\d-(0?[1-9]|[1][0-2])-(0?[1-9]|[12][0-9]|3[01])', date):
         raise HTTPException(status_code=400, detail="Incorrect format.")
     else:
-        
         conn, cur = to_database.connect()
-        cur.execute("""
+        try:
+            cur.execute("""
 
-            SELECT 
-                card_info.info.name,
-                card_info.sets.set_full,
-                card_info.info.id,
-                usd,
-                usd_foil,
-                euro,
-                euro_foil,
-                tix 
-            FROM card_data
-            JOIN card_info.info
-                ON card_data.set = card_info.info.set
-                AND card_data.id = card_info.info.id
-            JOIN card_info.sets
-                ON card_data.set = card_info.sets.set
-            WHERE
-                date = %s
+                SELECT 
+                    card_info.info.name,
+                    card_info.sets.set_full,
+                    card_info.info.id,
+                    usd,
+                    usd_foil,
+                    euro,
+                    euro_foil,
+                    tix 
+                FROM card_data
+                JOIN card_info.info
+                    ON card_data.set = card_info.info.set
+                    AND card_data.id = card_info.info.id
+                JOIN card_info.sets
+                    ON card_data.set = card_info.sets.set
+                WHERE
+                    date = %s
 
-        """, (date,))
+            """, (date,))
+        except DatetimeFieldOverflow as e:
+            pass 
 
         result = cur.fetchall()
         if result == []:
@@ -89,7 +92,7 @@ async def get_single_card_data(set: str, id: str, max: Union[int, None] = 25):
             usd_foil,
             euro,
             euro_foil,
-            tix 
+            tix
         FROM card_data
         JOIN card_info.info
             ON card_data.set = card_info.info.set
@@ -112,23 +115,21 @@ async def get_single_card_data(set: str, id: str, max: Union[int, None] = 25):
         price_data_single_card = {
                 "name": result[0][0],
                 "set": result[0][2],
-                "collector_id": result[0][1],
-                "price_history": {
-
-                }
+                "collector_id": result[0][1]
             }
-        
-        # x = 25
+        price_data_single_card["price_history"] = []
         for data in result[:max]:
             data = data[3:]
-            price_data_single_card['price_history'][data[0]] = {
-                "date": data[0],
-                "usd" : data[1],
-                "usd_foil" : data[2],
-                "euro" : data[3],
-                "euro_foil": data[4],
-                "tix": data[5],
-            }
+            price_data_single_card['price_history'].append(
+                {
+                    "date": data[0],
+                    "usd" : data[1],
+                    "usd_foil" : data[2],
+                    "euro" : data[3],
+                    "euro_foil": data[4],
+                    "tix": data[5],
+                }
+            )
         log.debug(f"Returning card data for {price_data_single_card['name']}")
         return price_data_single_card
 
