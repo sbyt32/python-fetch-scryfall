@@ -37,9 +37,11 @@ def _set_up():
     cur.execute(
     """
         CREATE TABLE IF NOT EXISTS card_info.info(
-            name    varchar(255),
-            set     varchar(12),
-            id      text
+            name            varchar(255),
+            set             varchar(12),
+            id              text,
+            tcg_id          text,
+            tcg_id_etch     text
         )
     """)
     log.debug('Creating table "card_info.info" if it does not exist')
@@ -53,7 +55,7 @@ def _set_up():
         date        date        NOT NULL,
         usd         float(2),
         usd_foil    float(2),
-        usd_etched  float(2),
+        usd_etch    float(2),
         euro        float(2),
         euro_foil   float(2),
         tix         float(2)
@@ -71,8 +73,9 @@ def _set_up():
 
     log.debug('Creating table "card_info.sets" if it does not exist')
 
-
-    resp = scripts.request_wrapper.send_response('https://api.scryfall.com/sets')['data']
+    # resp = scripts.request_wrapper.send_response('https://api.scryfall.com/sets')['data']
+    resp = scripts.connect.to_requests_wrapper.send_response('https://api.scryfall.com/sets')['data']
+    
     for sets in resp:
         if not sets['digital']:
             
@@ -89,16 +92,33 @@ def _set_up():
                     )
 
     # * This creates the card_info.groups table, which organizes popular groupings, such as "fetchland" or "shockland".
+    log.debug('Creating table "card_info.groups" if it does not exist')
     cur.execute(
         """ CREATE TABLE IF NOT EXISTS card_info.groups
         (
             id      text        NOT NULL,
             set     varchar(12) NOT NULL,
             groups  text[]
-        
-        )""")
-    log.debug('Creating table "card_info.groups" if it does not exist')
+        )
+        """
+    )
 
+    # * This will create the card_data_tcg table, which will pull recent sales from TCGplayer.
+    log.debug('Creating table "card_data_tcg" if it does not exist')
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS card_data_tcg
+        (
+            tcg_id      text        NOT NULL,
+            order_date  date        NOT NULL,
+            condition   text        NOT NULL,
+            variant     text        NOT NULL,
+            qty         smallint    NOT NULL,
+            buy_price   float(2)    NOT NULL,
+            ship_Price  float(2)    NOT NULL
+        )
+        """
+    )
     conn.commit()
     conn.close()
 

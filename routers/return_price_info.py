@@ -50,12 +50,12 @@ async def get_single_day_data(date:str):
         except DatetimeFieldOverflow as e:
             pass 
 
-        result = cur.fetchall()
-        if result == []:
+        resp = cur.fetchall()
+        if resp == ():
             raise HTTPException(status_code=404, detail=f"There is no price data for {date}")
         else:
             price_data_single_day = []
-            for cards in result:
+            for cards in resp:
                 price_data_single_day.append(
                     {
                     'name' : cards[0],

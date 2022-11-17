@@ -12,7 +12,7 @@ config = config_reader()
 # ? All routes.
 async def select_access(access: str):
     if access != config['CONNECT']['sec_token']:
-        raise RequestValidationError
+        raise TokenError("access")
 
 
 # ? Admin route.

@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from dependencies import select_access
-from exceptions import RootException
 import scripts.connect.to_database as to_database
 import json
 
@@ -20,8 +19,43 @@ router = APIRouter(
 )
 
 @router.get("/", status_code=200, response_class=PrettyJSONResp)
-async def read_items():
-    raise RootException
+async def read_items(response: Response):
+    conn, cur = to_database.connect()
+    cur.execute(""" 
+        
+        SELECT   
+            card_info.info.name,
+            card_info.sets.set_full,
+            card_info.info.set,
+            card_info.info.id
+        FROM card_info.info
+        JOIN card_info.sets
+            ON card_info.info.set = card_info.sets.set
+        """,
+
+        # (set, id)
+        )
+    resp = cur.fetchall()
+    if resp == ():
+        return {}
+    else:
+        response.status_code = status.HTTP_200_OK
+        card_data = []
+        for cards in resp:
+            card_data.append(
+                {
+                    'name': cards[0],
+                    'set_full': cards[1],
+                    'set': cards[2],
+                    'id': cards[3],
+                }
+            )
+
+        return {
+            "resp"      : "card_data",
+            "status"    : response.status_code,
+            "data"      : card_data
+        }
 
 
 @router.get("/{set}/{id}")

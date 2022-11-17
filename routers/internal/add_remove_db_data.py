@@ -38,18 +38,26 @@ async def add_card_to_track(url: str):
 
         cur.execute("SELECT * from card_info.info where id = %s AND set= %s", (resp['id'], resp['set']))
         if len(cur.fetchall()) == 0:
-        
-            add_info_to_postgres = """
-                INSERT INTO card_info.info (name, set, id, uri)
+                # tcg_etched_id = ''
+                try:
+                    resp['tcgplayer_etched_id']
+                except KeyError:
+                    print('hi')
+                    tcg_etched_id = None
+                else:
+                    tcg_etched_id = resp['tcgplayer_etched_id']
+                    
+                add_info_to_postgres = """
+                    INSERT INTO card_info.info (name, set, id, uri, tcg_id, tcg_id_etch)
 
-                VALUES (%s,%s,%s,%s)
-                """
-            # ? Uncomment below in production.
-            # cur.execute(add_info_to_postgres, (resp['name'], resp['set'], resp['id'], resp['uri']))
-            # conn.commit()
+                    VALUES (%s,%s,%s,%s,%s,%s)
+                    """
+                # ? Uncomment below in production.
+                cur.execute(add_info_to_postgres, (resp['name'], resp['set'], resp['collector_number'], resp['uri'], resp['tcgplayer_id'], tcg_etched_id))
+                conn.commit()
 
-            log.info(f'Now tracking: {resp["name"]} from {resp["set_name"]}')
-            return f'Now tracking: {resp["name"]} from {resp["set_name"]}'
+                log.info(f'Now tracking: {resp["name"]} from {resp["set_name"]}')
+                return f'Now tracking: {resp["name"]} from {resp["set_name"]}'
 
         else:
             log.info(f'Already tracking: {resp["name"]} from {resp["set_name"]}')
