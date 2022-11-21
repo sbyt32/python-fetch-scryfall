@@ -110,7 +110,7 @@ def _set_up():
         CREATE TABLE IF NOT EXISTS card_data_tcg
         (
             tcg_id      text        NOT NULL,
-            order_date  date        NOT NULL,
+            order_date  timestamptz NOT NULL,
             condition   text        NOT NULL,
             variant     text        NOT NULL,
             qty         smallint    NOT NULL,
