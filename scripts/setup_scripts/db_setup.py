@@ -74,7 +74,7 @@ def _set_up():
     log.debug('Creating table "card_info.sets" if it does not exist')
 
     # resp = scripts.request_wrapper.send_response('https://api.scryfall.com/sets')['data']
-    resp = scripts.connect.to_requests_wrapper.send_response('https://api.scryfall.com/sets')['data']
+    resp = scripts.connect.to_requests_wrapper.send_response('GET','https://api.scryfall.com/sets')['data']
     
     for sets in resp:
         if not sets['digital']:
@@ -109,13 +109,16 @@ def _set_up():
         """
         CREATE TABLE IF NOT EXISTS card_data_tcg
         (
+            order_id    varchar     NOT NULL,
             tcg_id      text        NOT NULL,
             order_date  timestamptz NOT NULL,
             condition   text        NOT NULL,
             variant     text        NOT NULL,
             qty         smallint    NOT NULL,
             buy_price   float(2)    NOT NULL,
-            ship_Price  float(2)    NOT NULL
+            ship_price  float(2)    NOT NULL,
+        
+            UNIQUE(order_id)
         )
         """
     )

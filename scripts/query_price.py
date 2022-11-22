@@ -14,7 +14,7 @@ def query_price():
 
     log.debug(f"Parsing {len(records)} cards.")
     for uri in records:
-        r = to_requests.send_response(uri[0])
+        r = to_requests.send_response('GET',uri[0])
         sleep(.2)
         insert_values = """
             INSERT INTO card_data (set, id, date, usd, usd_foil, euro, euro_foil, tix) 

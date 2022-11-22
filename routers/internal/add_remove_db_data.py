@@ -19,7 +19,7 @@ router = APIRouter(
     )
 async def add_card_to_track(url: str):
 
-    resp = to_requests_wrapper.send_response(f"https://api.scryfall.com/cards/{url}")
+    resp = to_requests_wrapper.send_response('GET',f"https://api.scryfall.com/cards/{url}")
 
     try:
 

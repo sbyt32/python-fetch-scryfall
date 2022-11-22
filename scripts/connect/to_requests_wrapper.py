@@ -2,8 +2,8 @@ import requests
 import logging
 log = logging.getLogger()
 
-def send_response(url:str):
-    r = requests.get(url)
+def send_response(method:str, url:str, **kwargs):
+    r = requests.request(method, url, **kwargs)
     if not r.ok:
         # todo: Add logging issue
         log.error(f"Request failed! Status code:{r.status_code}")
@@ -11,6 +11,4 @@ def send_response(url:str):
         # raise 
     else:
         card_list = r.json()
-        # if card_list['object'] == 'error':
-        #     return card_list
         return card_list

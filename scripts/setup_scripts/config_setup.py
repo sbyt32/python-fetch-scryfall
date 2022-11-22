@@ -7,6 +7,7 @@ def cfg_setup():
 
     cfg['DEFAULT']                  = {}
     cfg['CONNECT']                  = {}
+    cfg['UPDATES']                  = {}
     cfg['DEFAULT']['path']          = ""
     cfg['DEFAULT']['config']        = "config.ini"
     cfg['CONNECT']["host"]          = input("Host Address: (Default: localhost) ") or "localhost"
