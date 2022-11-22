@@ -1,7 +1,7 @@
 # from fastapi import Response, status
 from fastapi import Header, HTTPException
 from fastapi.exceptions import RequestValidationError
-from exceptions import TokenError
+from api_files.exceptions import TokenError
 from scripts.config_reader import config_reader
 import logging
 log = logging.getLogger()

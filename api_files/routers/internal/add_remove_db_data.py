@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from dependencies import write_access
+from api_files.dependencies import write_access
 import scripts.connect.to_database as to_database
 import scripts.connect.to_requests_wrapper as to_requests_wrapper
 import logging

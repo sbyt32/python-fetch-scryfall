@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from dependencies import select_access
+from api_files.dependencies import select_access
 import scripts.connect.to_database as to_database
 import json
 

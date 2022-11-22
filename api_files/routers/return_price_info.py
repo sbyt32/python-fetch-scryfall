@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from psycopg2.errors import DatetimeFieldOverflow
-from dependencies import price_access
+from api_files.dependencies import price_access
 from typing import Union
 import scripts.connect.to_database as to_database
-from routers.pretty import PrettyJSONResp
+from api_files.routers.pretty import PrettyJSONResp
 import logging
 import re
 log = logging.getLogger()
@@ -74,11 +74,15 @@ async def get_single_day_data(date:str):
 
 
 @router.get("/{set}/{id}", description="Get the price data for one card. Last 25 results only.")
-async def get_single_card_data(set: str, id: str, max: Union[int, None] = 25):
+async def get_single_card_data(set: str, id: str, max: Union[int, None] = 25, sort: Union[str, None] = "asc"):
     if max > 25:
         # TODO: Figure out how to know where the > 25 query came from.
         log.error("User attempted to search more than 25 queries, setting to 25.")
         max = 25
+        
+    if not sort.lower() == "desc":
+        sort = "asc"
+
 
     conn, cur = to_database.connect()
     cur.execute(""" 
@@ -101,10 +105,13 @@ async def get_single_card_data(set: str, id: str, max: Union[int, None] = 25):
             ON card_data.set = card_info.sets.set
         WHERE
             card_data.set = %s AND card_data.id = %s
+        ORDER BY
+            date %s
+        LIMIT %s
 
         """,
 
-        (set, id)
+        (set, id, 'desc', max)
         )
     
     result = cur.fetchall()
@@ -118,7 +125,7 @@ async def get_single_card_data(set: str, id: str, max: Union[int, None] = 25):
                 "collector_id": result[0][1]
             }
         price_data_single_card["price_history"] = []
-        for data in result[:max]:
+        for data in result:
             data = data[3:]
             price_data_single_card['price_history'].append(
                 {

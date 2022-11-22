@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
-from dependencies import price_access
-from exceptions import RootException
-from routers.pretty import PrettyJSONResp
+from api_files.dependencies import price_access
+from api_files.exceptions import RootException
+from api_files.routers.pretty import PrettyJSONResp
 router = APIRouter(
     prefix="/sales",
     dependencies=[Depends(price_access)],

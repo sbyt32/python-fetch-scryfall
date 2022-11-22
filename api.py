@@ -1,10 +1,10 @@
 import os
 from fastapi import Depends, FastAPI, Response, status
-from exceptions import RootException, root_exception_handler, TokenError, token_exception_handler
-from dependencies import select_access
+from api_files.exceptions import RootException, root_exception_handler, TokenError, token_exception_handler
+from api_files.dependencies import select_access
 # 
-from routers import return_card_info, return_price_info
-from routers.internal import add_remove_db_data
+from api_files.routers import return_card_info, return_price_info
+from api_files.routers.internal import add_remove_db_data
 # * Logging Information
 import logging
 # ? For some reason, scripts/config_reader.py having the logging setup works fine. Need to know why eventually. Commented out for now
