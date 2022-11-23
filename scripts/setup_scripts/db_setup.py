@@ -1,7 +1,6 @@
-import psycopg2
-import psycopg2.errors
-import scripts.connect.to_requests_wrapper
-import scripts.connect.to_database
+import psycopg
+import scripts.connect.to_database as to_database
+import scripts.connect.to_requests_wrapper as to_requests
 import logging
 log = logging.getLogger()
 from psycopg2 import sql
@@ -11,23 +10,39 @@ def check_set_exists(sets:object,cur):
     return bool(cur.execute("SELECT * from card_info.sets WHERE set = %s AND set_full = %s", (sets['code'],sets['name'])))
 
 def _set_up_db():
-    config = config_reader.config_reader()
-    conn, cur = scripts.connect.to_database.connect()
+    """
+    Creates the database, etc. Info below.
+    
+
+    | Name             | Type     | Desc                                                                     |
+    |------------------|----------|--------------------------------------------------------------------------|
+    | {database name}  | Database | The name of your database                                                |
+    | card_data        | Table    | public schema, holds card price data. Fetched daily via Scryfall         |
+    | card_data_tcg    | Table    | public schema, grabs recent sales from TCGPlayer. Fetched weekly         |
+    | card_info        | Schema   | A schema to separate the price data and the information that supports it |
+    | card_info.info   | Table    | card_info schema, holds identifiying information formation for cards     |
+    | card_info.sets   | Table    | card_info schema, holds the names of sets and information about them     |
+    | card_info.groups | Table    | card_info schema, does nothing at the moment                             |
+
+    """
+    # config = config_reader.config_reader()
+    cfg = config_reader.config_reader("CONNECT", "database")
+    # conn, cur = scripts.connect.to_database.connect()
+    conn, cur = to_database.connect_db()
 
     # Create database, if not existing.
     conn.autocommit = True
 
     try:
-        cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(config['CONNECT']['dbname'])))
-        db_create = f"Creating database: {config['CONNECT']['dbname']}"
-    except psycopg2.errors.DuplicateDatabase:
-        db_create = 'Database "{config["CONNECT"]["dbname"]}" already exists.'
+        cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(cfg['dbname'])))
+        db_create = f"Creating database: {cfg['dbname']}"
+    except psycopg.errors.DuplicateDatabase:
+        db_create = f'Database "{cfg["dbname"]}" already exists.'
     finally:
         log.debug(db_create)
     conn.close()
 
-
-    conn, cur = scripts.connect.to_database.connect()
+    conn, cur = to_database.connect_db()
 
     # * Schema to organize information easier
     cur.execute("CREATE SCHEMA IF NOT EXISTS card_info")
@@ -74,8 +89,9 @@ def _set_up_db():
     log.debug('Creating table "card_info.sets" if it does not exist')
 
     # resp = scripts.request_wrapper.send_response('https://api.scryfall.com/sets')['data']
-    resp = scripts.connect.to_requests_wrapper.send_response('GET','https://api.scryfall.com/sets')['data']
-    
+    # resp = scripts.connect.to_requests_wrapper.send_response('GET','https://api.scryfall.com/sets')['data']
+    resp = to_requests.send_response('GET','https://api.scryfall.com/sets')['data']
+
     for sets in resp:
         if not sets['digital']:
             

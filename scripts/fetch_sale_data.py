@@ -1,41 +1,43 @@
 import arrow
+import configparser
 import uuid
 import time
 import hashlib
 import json
 import logging
-import psycopg2.errors
+import psycopg
 import scripts.connect.to_requests_wrapper as to_requests_wrapper
 import scripts.config_reader as cfg_reader
 import scripts.connect.to_database as to_db
 
 log = logging.getLogger()
 
-
 repeat_checker = f"{arrow.utcnow().format('MM_DD_YY')}_{str(uuid.uuid4())[:8]}"
-cfg = cfg_reader.config_reader()
+cfg = cfg_reader.config_reader('UPDATES', 'database')
 
+# TODO: Maybe move this info into the database, somewhere
 def update_date():
-    cfg['UPDATES']['TCG_SALES'] = repeat_checker
-    log.info(f"Config: {'TCG_SALES'} | cfg['UPDATES']['TCG_SALES'] -> {repeat_checker}")
+    cfg['tcg_sales'] = repeat_checker
+    log.info(f"Config: {'tcg_sales'} | cfg['tcg_sales'] -> {repeat_checker}")
 
-    with open('config.ini', 'w') as config_update:
-        cfg.write(config_update)
+    config = configparser.ConfigParser()
+    config.read('config_files/database.ini')
+    config['UPDATES']['tcg_sales'] = repeat_checker
+
+    with open('config_files/database.ini', 'w') as config_update:
+        config.write(config_update)
 
 
 
 def fetch_tcg_prices():
-    # 
-    try:
-        # Just checking if this exists
-        cfg['UPDATES']['TCG_SALES']
-    except KeyError:
-        log.info("Will attempt to parse all data as I assume you never fetched these cards before.")
-        update_date()
-    
-    start = time.perf_counter()
 
-    conn, cur = to_db.connect()
+    # * If it isn't updated, run the script.
+    if cfg["tcg_sales"] == "None":
+        update_date()
+
+    start = time.perf_counter() # ? Used for timing the length to parse everything
+
+    conn, cur = to_db.connect_db()
     cur.execute("SELECT tcg_id, name FROM card_info.info")
     res = cur.fetchall()
 
@@ -83,7 +85,7 @@ def fetch_tcg_prices():
                 try:
                     cur.execute("""
 
-                        INSERT INTO card_data_tcg (
+                        INSERT INTO card_data_tcg_copy (
                             order_id,
                             tcg_id,
                             order_date,
@@ -115,16 +117,23 @@ def fetch_tcg_prices():
                             ship_price
                         )
                     )
-                        # ON CONFLICT ON CONSTRAINT card_data_tcg_order_id_key
-                        # DO NOTHING
-                except psycopg2.errors.UniqueViolation:
-                    if cfg['UPDATES']['TCG_SALES'] == repeat_checker:
+
+                        # TODO: Resolve this?
+                        # * Ash     :  With fetch_tcg_prices(), stop committing everywhere. You should just commit changes at the end of the function
+                        # * Frank   :  I think part of it was seeing that psycopg2.connection.rollback() undoes back all of the data 
+                        # *            https://www.psycopg.org/docs/connection.html#connection.rollback
+
+                        # ? Maybe this could be the answer?
+                        # * https://www.psycopg.org/psycopg3/docs/basic/transactions.html#nested-transactions
+                        
+                except psycopg.errors.UniqueViolation:
+                    if cfg['tcg_sales'] == repeat_checker:
                         conn.rollback()
                         log.warning(f"Duplicate data for card {card_name}, approx. # {offset_value} - {offset_value + 25}, merging ID {order_id}")
                         cur.execute("""
 
-                            UPDATE card_data_tcg
-                            SET qty = card_data_tcg.qty + %s
+                            UPDATE card_data_tcg_copy
+                            SET qty = card_data_tcg_copy.qty + %s
                             WHERE order_id = %s
 
                             """, (
@@ -160,4 +169,4 @@ def fetch_tcg_prices():
 
     update_date()
 
-    log.debug(f"Elapsed time: {time.perf_counter() - start}")
+    log.debug(f"Elapsed time: {time.perf_counter() - start}") # ? Sends length to parse to debug

@@ -36,9 +36,10 @@ def cfg_setup():
 
     database['CONNECT']                  = {}
     database['UPDATES']                  = {}
+    database['UPDATES']['tcg_sales']     = "None"
     database['CONNECT']["host"]          = input("Host Address: (Default: localhost) ") or "localhost"
     database['CONNECT']["user"]          = input("Username: ")
-    database['CONNECT']["pass"]          = input(f"Password for {database['CONNECT']['user']}: ")
+    database['CONNECT']["password"]      = input(f"Password for {database['CONNECT']['user']}: ")
     database['CONNECT']["dbname"]        = input("Database: (Default: price_tracker) ") or "price_tracker"
 
     # * A config file for tokens! Tokens for general access, writing, and price data.

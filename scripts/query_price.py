@@ -7,7 +7,7 @@ log = logging.getLogger()
 
 
 def query_price():
-    conn, cur = to_database.connect()
+    conn, cur = to_database.connect_db()
 
     cur.execute("SELECT uri FROM card_info.info")
     records = cur.fetchall()
