@@ -1,11 +1,11 @@
 import psycopg2
 import logging
-import scripts.config_reader as config_reader
+from scripts.config_reader import config_reader
 log = logging.getLogger()
 
 
 def connect():
-    config = config_reader.config_reader()
+    config = config_reader("CONNECT","database")
     conn = psycopg2.connect(
         host        =   config['CONNECT']['host'],
         user        =   config['CONNECT']['user'],

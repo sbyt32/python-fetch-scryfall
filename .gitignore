@@ -16,3 +16,4 @@ config.ini
 .old
 sample.py
 add_tcg.py
+config_files/
