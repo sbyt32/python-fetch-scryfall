@@ -1,8 +1,6 @@
 import logging
 from fastapi import Request, FastAPI
 from fastapi.responses import JSONResponse
-from scripts.config_reader import config_reader
-config = config_reader()
 app = FastAPI()
 log = logging.getLogger()
 

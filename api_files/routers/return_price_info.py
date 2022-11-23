@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
-from psycopg2.errors import DatetimeFieldOverflow
+# from psycopg2.errors import DatetimeFieldOverflow
+from api_files.exceptions import BadResponseException
+from psycopg.errors import DatetimeFieldOverflow
 from api_files.dependencies import price_access
 from typing import Union
-import scripts.connect.to_database as to_database
+import scripts.connect.to_database as to_db
 from api_files.routers.pretty import PrettyJSONResp
 import logging
 import re
@@ -24,7 +26,7 @@ async def get_single_day_data(date:str):
     if not re.match(r'^\d\d\d\d-(0?[1-9]|[1][0-2])-(0?[1-9]|[12][0-9]|3[01])', date):
         raise HTTPException(status_code=400, detail="Incorrect format.")
     else:
-        conn, cur = to_database.connect()
+        conn, cur = to_db.connect_db()
         try:
             cur.execute("""
 
@@ -48,7 +50,9 @@ async def get_single_day_data(date:str):
 
             """, (date,))
         except DatetimeFieldOverflow as e:
-            pass 
+            # Placeholder, this is if the date isn't valid.
+            return BadResponseException("helpo")
+            raise SystemExit() 
 
         resp = cur.fetchall()
         if resp == ():
@@ -84,7 +88,7 @@ async def get_single_card_data(set: str, id: str, max: Union[int, None] = 25, so
         sort = "asc"
 
 
-    conn, cur = to_database.connect()
+    conn, cur = to_db.connect_db()
     cur.execute(""" 
         
         SELECT 
@@ -105,13 +109,11 @@ async def get_single_card_data(set: str, id: str, max: Union[int, None] = 25, so
             ON card_data.set = card_info.sets.set
         WHERE
             card_data.set = %s AND card_data.id = %s
-        ORDER BY
-            date %s
         LIMIT %s
 
         """,
 
-        (set, id, 'desc', max)
+        (set, id, max)
         )
     
     result = cur.fetchall()

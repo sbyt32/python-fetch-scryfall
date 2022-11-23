@@ -2,8 +2,8 @@ import os
 from fastapi import Depends, FastAPI, Response, status
 from api_files.exceptions import RootException, root_exception_handler, TokenError, token_exception_handler
 from api_files.dependencies import select_access
-# 
-from api_files.routers import return_card_info, return_price_info
+# ? Can I wrap this up in something more compact?
+from api_files.routers import return_card_info, return_price_info, return_sale_data
 from api_files.routers.internal import add_remove_db_data
 # * Logging Information
 import logging
@@ -17,6 +17,7 @@ log.setLevel(logging.INFO)
 app = FastAPI(dependencies=[Depends(select_access)])
 app.include_router(return_card_info.router)
 app.include_router(return_price_info.router)
+app.include_router(return_sale_data.router)
 app.include_router(add_remove_db_data.router)
 
 
@@ -32,5 +33,6 @@ async def root(response: Response):
             'detail':   'Configuration file improperly configured. Script will not function.'
         }
 
+# ? Can this be done more efficently?
 app.add_exception_handler(RootException, root_exception_handler)
 app.add_exception_handler(TokenError, token_exception_handler)

@@ -2,10 +2,10 @@ import psycopg
 import scripts.connect.to_database as to_database
 import scripts.connect.to_requests_wrapper as to_requests
 import logging
-log = logging.getLogger()
-from psycopg2 import sql
+from psycopg import sql
 from scripts import config_reader
 
+log = logging.getLogger()
 def check_set_exists(sets:object,cur):
     return bool(cur.execute("SELECT * from card_info.sets WHERE set = %s AND set_full = %s", (sets['code'],sets['name'])))
 

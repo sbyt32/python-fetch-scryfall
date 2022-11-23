@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from api_files.dependencies import select_access
-import scripts.connect.to_database as to_database
+import scripts.connect.to_database as to_db
 import json
 
 
@@ -20,7 +20,7 @@ router = APIRouter(
 
 @router.get("/", status_code=200, response_class=PrettyJSONResp)
 async def read_items(response: Response):
-    conn, cur = to_database.connect()
+    conn, cur = to_db.connect_db()
     cur.execute(""" 
         
         SELECT   
@@ -60,7 +60,7 @@ async def read_items(response: Response):
 
 @router.get("/{set}/{id}")
 async def read_item(set: str, id: str, response: Response):
-    conn, cur = to_database.connect()
+    conn, cur = to_db.connect_db()
     cur.execute(""" 
         
         SELECT  * 
@@ -80,9 +80,12 @@ async def read_item(set: str, id: str, response: Response):
         return {
             "resp"      : "card_data",
             "status"    : response.status_code,
-            "name"      : result[0],
-            "set"       : result[1],
-            "id"        : result[2],
-            "URL"       : result[3]
+            "data"      : {
+                "name"      : result[0],
+                "set"       : result[1],
+                "id"        : result[2],
+                "URL"       : result[3]
+            }
+
         }
 

@@ -53,6 +53,7 @@ def fetch_tcg_prices():
         # ? Is there a much easier way to do more than 25? Yes, but it's a bit tougher.
         payload = {
             "listingType":'All',
+            "languages": [0],
             "offset":0,
             "limit":25,
             "time":1668972898655
@@ -157,6 +158,7 @@ def fetch_tcg_prices():
                 offset_value += 25
                 payload = {
                     "listingType":'All',
+                    "languages": [0],
                     "offset":offset_value,
                     "limit":25,
                     "time":1668972898655
