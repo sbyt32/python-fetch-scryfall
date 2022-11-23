@@ -10,7 +10,7 @@ from scripts import config_reader
 def check_set_exists(sets:object,cur):
     return bool(cur.execute("SELECT * from card_info.sets WHERE set = %s AND set_full = %s", (sets['code'],sets['name'])))
 
-def _set_up():
+def _set_up_db():
     config = config_reader.config_reader()
     conn, cur = scripts.connect.to_database.connect()
 

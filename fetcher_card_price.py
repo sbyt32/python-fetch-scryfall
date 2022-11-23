@@ -9,16 +9,18 @@ log = logging.getLogger()
 log.setLevel(logging.INFO)
 
 if __name__ == "__main__":
-    cfg = config_reader.config_reader()
+    cfg = config_reader.config_reader('FILE_DATA', 'config')
     try:
-        cfg['CONNECT']['db_exists']
+        cfg['db_exists']
     except KeyError:
-        log.error("Cannot confirm that the database exist. Does config.ini exist?")
+        log.error("Cannot confirm that the database exist. Does config_files/config.ini exist?")
         raise SystemExit
     else:
-        if not cfg['CONNECT'].getboolean('db_exists') == True:
-            log.error("Database does not exist according to config.ini.")
+
+        if not bool(cfg['db_exists']) == True:
+            log.error("Database does not exist according to config_files/config.ini.")
             raise SystemExit()
         else:
             log.info(f"Fetching card data on {arrow.utcnow().format('YYYY-MM-DD')}")
             query_price()
+

@@ -15,20 +15,20 @@ def cfg_setup():
     cfg = configparser.ConfigParser()
     cfg.read(cfg_folder_path + 'config.ini')
 
-    cfg['DEFAULT']                  = {}
-    cfg['DEFAULT']['config_path']   = cfg_folder_path + "config.ini"
-    cfg['DEFAULT']['token_path']    = cfg_folder_path + "token.ini"
-    cfg['DEFAULT']['database_path'] = cfg_folder_path + "database.ini"
-    cfg["DEFAULT"]['db_exists']     = input("Does Database Exist? y/n (Default: y) ") or "y"
+    cfg['FILE_DATA']                  = {}
+    cfg['FILE_DATA']['config_path']   = cfg_folder_path + "config.ini"
+    cfg['FILE_DATA']['token_path']    = cfg_folder_path + "token.ini"
+    cfg['FILE_DATA']['database_path'] = cfg_folder_path + "database.ini"
+    cfg['FILE_DATA']['db_exists']     = input("Does Database Exist? y/n (Default: y) ") or "y"
 
     # Database existance, if you ran the script in the /local/ folder, yes
-    if cfg["DEFAULT"]['db_exists'] in ["yes", "y"]:
-        cfg["DEFAULT"]['db_exists']  = "true"
-    elif cfg["DEFAULT"]['db_exists'] in ["No", "n"]:
-        cfg["DEFAULT"]['db_exists']  = "false"
+    if cfg['FILE_DATA']['db_exists'] in ["yes", "y"]:
+        cfg['FILE_DATA']['db_exists']  = "true"
+    elif cfg['FILE_DATA']['db_exists'] in ["No", "n"]:
+        cfg['FILE_DATA']['db_exists']  = "false"
     else:
         print("Invalid value, assuming database does not exist.")
-        cfg["DEFAULT"]['db_exists']  = "false"
+        cfg['FILE_DATA']['db_exists']  = "false"
 
     # * A config file to hold connection information, mostly to pass into psycopg3 
     database = configparser.ConfigParser()

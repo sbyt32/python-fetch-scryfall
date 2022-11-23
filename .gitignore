@@ -17,3 +17,4 @@ config.ini
 sample.py
 add_tcg.py
 config_files/
+tests

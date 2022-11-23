@@ -5,12 +5,9 @@ log = logging.getLogger()
 
 
 def connect():
-    config = config_reader("CONNECT","database")
+    db_info = config_reader("CONNECT","database")
     conn = psycopg2.connect(
-        host        =   config['CONNECT']['host'],
-        user        =   config['CONNECT']['user'],
-        password    =   config['CONNECT']['pass'],
-        dbname      =   config['CONNECT']['dbname']
+        **db_info
     )
     cur = conn.cursor()
 
