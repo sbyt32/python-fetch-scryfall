@@ -47,16 +47,9 @@ Information can, after running, be found in http://127.0.0.1:8000/docs.
 
 <!-- If there is legacy data, `fetcher.py` will transform the data and place it into the PostgreSQL database. If that is the case, please rerun the script as it will not fetch the information for today otherwise.  -->
 ## Libraries
-### Local
     arrow
     requests
-    pick
-    psycopg2-binary
-
-### Server
-    arrow
-    requests
-    psycopg2-binary
+    psycopg
     fastapi
     hypercorn
 
@@ -64,8 +57,18 @@ Information can, after running, be found in http://127.0.0.1:8000/docs.
 - Server
     - Add card grouos
     - Manipulate Price Data
-    - Consider Tracking TCGP recent purchase data. 
+    - Consistent import names
+    - Committing as little as possible in the sale fetch data.
+    - Separate script for updating sale data for cards after initial search.
+- API
+    - Refactor router-related data
+    - Custom classes for response formats
+- Both
+    - Custom Exceptions for cleaner errors
+    - Update README
+
+## Completed:
+- Server
+    - Tracking TCGP recent purchase data. 
         - Modify card_info.info table columns for TCGP and SF.
-        
-- Local
-    - Reconsider what to do with this.
+    - Config files are called as needed

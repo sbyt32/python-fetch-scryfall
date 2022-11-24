@@ -1,31 +1,25 @@
 from fastapi import APIRouter, Depends, HTTPException
 from api_files.dependencies import write_access
-from api_files.routers.internal import add_data
 import scripts.connect.to_database as to_db
 import scripts.connect.to_requests_wrapper as to_requests_wrapper
 import logging
 log = logging.getLogger()
 
 router = APIRouter(
-    prefix="/admin",
     tags=["Handle card data"],
     dependencies=[Depends(write_access)],
     )
-router.include_router(add_data.router)
 
-# ? Should internal files 
-
-# Add a card
+# Add some cards with the set and ID of the card
 @router.post(
-    "/add/{url}"
+    "/add/{set}/{id}"
     )
-async def add_card_to_track_with_sf_id(url: str):
+async def add_card_to_track_with_set_id(set: str, id:str):
 
-    resp = to_requests_wrapper.send_response('GET',f"https://api.scryfall.com/cards/{url}")
+    resp = to_requests_wrapper.send_response('GET',f"https://api.scryfall.com/cards/search?q=set:{set}+cn:{id}")
 
     try:
-
-        if resp['object'] != "card":
+        if resp['object'] != "list":
             log.error("Not a card!")
             raise HTTPException(
                 status_code=404, detail="This is not a card!"
@@ -36,9 +30,15 @@ async def add_card_to_track_with_sf_id(url: str):
         log.error(f"KeyError:{e}")
 
     else:
+        if not resp['total_cards'] == 1:
+            error_msg = f"Recieved list with more than 1. Set:{set}, ID:{id}"
+            log.error(error_msg)
+            return error_msg
+
+        resp = resp['data'][0]
         conn, cur = to_db.connect_db()
 
-        cur.execute("SELECT * from card_info.info where id = %s AND set= %s", (resp['id'], resp['set']))
+        cur.execute("SELECT * from card_info.info where id = %s AND set= %s", (resp['collector_number'], resp['set']))
         if len(cur.fetchall()) == 0:
                 # tcg_etched_id = ''
                 try:
@@ -64,19 +64,3 @@ async def add_card_to_track_with_sf_id(url: str):
         else:
             log.info(f'Already tracking: {resp["name"]} from {resp["set_name"]}')
             return f'Already tracking: {resp["name"]} from {resp["set_name"]}'
-
-
-
-@router.delete("/remove/{set}/{id}")
-async def remove_card(set:str, id:str):
-    conn, cur = to_db.connect_db()
-
-    cur.execute("SELECT * from card_info.info where id = %s AND set = %s", (id, set))
-    card = cur.fetchone()
-    if not card:
-        log.warning(f"Failed to delete card with id: {id} and set: {set}, does not exist.")
-    else:
-        log.info(f"Deleting: {card[0]} from set: {str(card[1]).upper()}")
-        cur.execute("DELETE FROM card_info.info WHERE id = %s AND set = %s", (id,set))
-        # ? Uncomment below in production.
-        conn.commit()

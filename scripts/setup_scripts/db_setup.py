@@ -6,8 +6,6 @@ from psycopg import sql
 from scripts import config_reader
 
 log = logging.getLogger()
-def check_set_exists(sets:object,cur):
-    return bool(cur.execute("SELECT * from card_info.sets WHERE set = %s AND set_full = %s", (sets['code'],sets['name'])))
 
 def _set_up_db():
     """
@@ -25,11 +23,11 @@ def _set_up_db():
     | card_info.groups | Table    | card_info schema, does nothing at the moment                             |
 
     """
-    # config = config_reader.config_reader()
     cfg = config_reader.config_reader("CONNECT", "database")
-    # conn, cur = scripts.connect.to_database.connect()
-    conn, cur = to_database.connect_db()
-
+    
+    # conn, cur = to_database.connect_db()
+    conn = psycopg.connect(f"host={cfg['host']} user={cfg['user']} password={cfg['password']}")
+    cur = conn.cursor()
     # Create database, if not existing.
     conn.autocommit = True
 
@@ -55,6 +53,7 @@ def _set_up_db():
             name            varchar(255),
             set             varchar(12),
             id              text,
+            uri             text,
             tcg_id          text,
             tcg_id_etch     text
         )
@@ -94,18 +93,19 @@ def _set_up_db():
 
     for sets in resp:
         if not sets['digital']:
+            log.debug(f"Inserting {sets['name']} into card_info.sets")
             
-            if check_set_exists(sets, cur) == False:
-                
-                cur.execute(
-                    """
-                    INSERT INTO card_info.sets (set, set_full, release_date)
+            cur.execute(
+                """
+                INSERT INTO card_info.sets (set, set_full, release_date)
 
-                    VALUES (%s, %s, %s)
-                    
-                    ON CONFLICT DO NOTHING
-                    """, (sets['code'], sets['name'], sets['released_at'])
-                    )
+                VALUES (%s, %s, %s)
+                
+                ON CONFLICT DO NOTHING
+                """, (sets['code'], sets['name'], sets['released_at'])
+                )
+        else:
+            log.debug(f"Not inserting {sets['name']}: Set is digital-only.")
 
     # * This creates the card_info.groups table, which organizes popular groupings, such as "fetchland" or "shockland".
     log.debug('Creating table "card_info.groups" if it does not exist')

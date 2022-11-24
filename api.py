@@ -23,7 +23,7 @@ app.include_router(add_remove_db_data.router)
 
 @app.get("/", status_code=200, tags=["Test Connection"])
 async def root(response: Response):
-    if os.path.exists('config.ini'):
+    if os.path.exists('config_files/config.ini'):
         raise RootException
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR

@@ -1,4 +1,4 @@
-import scripts.connect.to_database as to_db # * Preemptive add
+import scripts.connect.to_database as to_db
 from fastapi import APIRouter, Depends
 from api_files.dependencies import price_access
 from api_files.exceptions import RootException
@@ -14,7 +14,7 @@ router = APIRouter(
 async def root_access():
     raise RootException
 
-@router.get("/card/{tcg_id}")
+@router.get("/card/{tcg_id}", description="Get the most recent sales from this card. Updates every week")
 async def filler_name(tcg_id:str):
     cur = to_db.connect_db()[1]
 

@@ -19,13 +19,13 @@ def cfg_setup():
     cfg['FILE_DATA']['config_path']   = cfg_folder_path + "config.ini"
     cfg['FILE_DATA']['token_path']    = cfg_folder_path + "token.ini"
     cfg['FILE_DATA']['database_path'] = cfg_folder_path + "database.ini"
-    cfg['FILE_DATA']['db_exists']     = input("Does Database Exist? y/n (Default: y) ") or "y"
+    cfg['FILE_DATA']['db_exists']     = input("Create Database? y/n (Default: y) ") or "y"
 
     # Database existance, if you ran the script in the /local/ folder, yes
     if cfg['FILE_DATA']['db_exists'] in ["yes", "y"]:
-        cfg['FILE_DATA']['db_exists']  = "true"
-    elif cfg['FILE_DATA']['db_exists'] in ["No", "n"]:
         cfg['FILE_DATA']['db_exists']  = "false"
+    elif cfg['FILE_DATA']['db_exists'] in ["No", "n"]:
+        cfg['FILE_DATA']['db_exists']  = "true"
     else:
         print("Invalid value, assuming database does not exist.")
         cfg['FILE_DATA']['db_exists']  = "false"
@@ -46,10 +46,10 @@ def cfg_setup():
     tokens = configparser.ConfigParser()
     tokens.read(cfg_folder_path + 'tokens.ini')
 
-    tokens[database['CONNECT']["host"]]                  = {}
-    tokens[database['CONNECT']["host"]]['sec_token']     = input("Security Token (For access): ") or "testing"
-    tokens[database['CONNECT']["host"]]['write_token']   = input("Writing Token (For writing to the DB!): ") or "testing"
-    tokens[database['CONNECT']["host"]]['price_token']   = input("Price Token (For accessing price information): ") or "testing"
+    tokens['CONNECT']                    = {}
+    tokens['CONNECT']['sec_token']       = input("Security Token (For access): ") or "testing"
+    tokens['CONNECT']['write_token']     = input("Writing Token (For writing to the DB!): ") or "testing"
+    tokens['CONNECT']['price_token']     = input("Price Token (For accessing price information): ") or "testing"
 
 
     with open(cfg_folder_path + 'config.ini', 'w') as config_update:
@@ -60,5 +60,3 @@ def cfg_setup():
 
     with open(cfg_folder_path + 'tokens.ini', 'w') as tokens_update:
         tokens.write(tokens_update)
-
-cfg_setup()

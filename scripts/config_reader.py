@@ -47,16 +47,3 @@ def config_reader(section:str, cfg:str):
     else:
         raise Exception(f'Section {section} not found in the {cfg_file} file')
     return db
-    # config.read(cfg_file)
-
-    # if os.path.exists(cfg_file):
-    #     try: 
-    #         config['CONNECT']
-    #     except KeyError:
-    #         log.critical("Missing connect info! Please run config_setup.py")
-    #         raise SystemExit()
-    #     else:
-    #         return config
-    # else:
-    #     log.critical("Config file does not exist! Please run config_setup.py")
-    #     raise SystemExit()
