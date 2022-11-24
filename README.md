@@ -2,37 +2,62 @@
 > A simple price fetcher for Magic: The Gathering, powered via Scryfall's API and written in Python.
 
 ## How it works
-<!-- `fetcher.py` will, at the moment, prompt you to track a card, searchable by name. That information is then stored in `data/cards_to_query.ndjson`, which is called by the next script. It will pull the information and acquire the price data via Scryfall, which will be put into `data/tracking/SET/NUMBER_CARDNAME.csv`.  -->
-Script is divided into groups, `local` and `server`. Place the `server` on your server and `local` on the computer / etc.
-### Local
-`config_setup.py` prompts you for information to pass to the rest of the scripts.
-- Host      (Default: localhost)
-- User      
-- Password  
-- Database  (Default: price_tracker)
 
-If you need to change information, such as to change databases, rerun the script.
+### set_up.py
+Asks for certain information for database usage. That data is stored in `config_files/*.ini`. It will also create a database for you and set everything up for the scripts to work correctly.  **Run this before anything else** or else everything else will fail to run. 
 
-`main.py` fetches the card data from Scryfall, searching by card name. It divides them based on each set, using Scryfall's organization system. [For more information, click here](https://scryfall.com/sets). It will create the database specified in `config_setup.py`; it is assumed that said database does not exist, however it should function as normal. 
+**Note**: Failing to input token values returns back *testing* as your token. 
 
-`config_setup.py` should be ran first, before `main.py`. Otherwise, the script **will** fail. 
-### Server
-`config_setup.py` functions the exact same way as it does for its `local` counterpart. 
-- Host      (Default: localhost)
-- User      
-- Password  
-- Database  (Default: price_tracker)
-- Database existance (Default: Yes)
+### api.py
+`api.py` is the API for the project, run it with [hypercorn](https://pgjones.gitlab.io/hypercorn/). It is currently the only way to add cards to be tracked at the moment.
 
-It is assumed that `local/config_setup.py` and `local/main.py` has been ran at least once, otherwise no information will be parsed and the database won't be set up correctly.
+    hypercorn api:app
 
-`fetcher.py` pulls info from the database, grabbing the URL for that card on Scryfall. It will then place the data prices for both US and EU markets, powered respectively by TCGPlayer and MagicCardMarket, into a PostgreSQL database.
+Uvicorn might work, but have not built with it in mind.
 
-If there is legacy data, `fetcher.py` will transform the data and place it into the PostgreSQL database. If that is the case, please rerun the script as it will not fetch the information for today otherwise. 
+Docs are a WIP. Use localhost:8000/docs for help.
 
-## Packages
+### fetcher_card_price.py
+`fetcher_card_price.py` pulls prices from Scryfall, which is powered by TCGPlayer. Once ran, it will parse through the cards that are in the database created in `set_up.py` and send requests to get prices for each of the cards. Those prices are stored in the aformentioned database. All formatting for collector number and set names is pulled from [Scryfall](https://scryfall.com/sets).
+
+Run this script once a day, using `crontab` or any sort of scheduling program.
+
+### fetcher_card_sales.py
+`fetcher_card_sales.py` pulls sales from TCGPlayer, using the same cards that are being tracked. Those prices are placed into the database and can be called via the API or with SQL queries. 
+
+Run this script once a week to every other week, there is not much need to fetch daily.
+
+### logging_details.py
+Logging setup, the data will be placed in the folder `logs/`. Not much to it.
+
+Example `*.log` output
+```log
+2022-11-23 15:46:13,979 | INFO     | add_remove_db_data.py | Now tracking: Thalia, Guardian of Thraben from Innistrad: Crimson Vow
+```
+
+## Libraries
     arrow
-    ndjson
     requests
-    pick
-    psycopg2-binary
+    psycopg
+    fastapi
+    hypercorn
+
+## TODO:
+- Server
+    - Add card grouos
+    - Manipulate Price Data
+    - Consistent import names
+    - Committing as little as possible in the sale fetch data.
+    - Separate script for updating sale data for cards after initial search.
+- API
+    - Refactor router-related data
+    - Custom classes for response formats
+- Both
+    - Custom Exceptions for cleaner errors
+    - Update README
+
+## Completed:
+- Server
+    - Tracking TCGP recent purchase data. 
+        - Modify card_info.info table columns for TCGP and SF.
+    - Config files are called as needed
