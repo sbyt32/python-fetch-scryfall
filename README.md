@@ -2,50 +2,39 @@
 > A simple price fetcher for Magic: The Gathering, powered via Scryfall's API and written in Python.
 
 ## How it works
-<!-- `fetcher.py` will, at the moment, prompt you to track a card, searchable by name. That information is then stored in `data/cards_to_query.ndjson`, which is called by the next script. It will pull the information and acquire the price data via Scryfall, which will be put into `data/tracking/SET/NUMBER_CARDNAME.csv`.  -->
-Script is divided into groups, `local` and `server`. Place the `server` on your server and `local` on the computer / etc.
 
-<!-- TODO: Update This -->
-<!-- ### Local
-`config_setup.py` prompts you for information to pass to the rest of the scripts.
-- Host      (Default: localhost)
-- User      
-- Password  
-- Database  (Default: price_tracker)
+### set_up.py
+Asks for certain information for database usage. That data is stored in `config_files/*.ini`. It will also create a database for you and set everything up for the scripts to work correctly.  **Run this before anything else** or else everything else will fail to run. 
 
-If you need to change information, such as to change databases, rerun the script.
+**Note**: Failing to input token values returns back *testing* as your token. 
 
-`main.py` fetches the card data from Scryfall, searching by card name. It divides them based on each set, using Scryfall's organization system. [For more information, click here](https://scryfall.com/sets). It will create the database specified in `config_setup.py`; it is assumed that said database does not exist, however it should function as normal. 
-
-`config_setup.py` should be ran first, before `main.py`. Otherwise, the script **will** fail.  -->
-
-### Server
-`set_up.py` functions the exact same way as it does for its `local` counterpart. The information is stored in `config.ini`. Both scripts, `api.py` and `price_fetcher.py`, **WILL** fail without a `config.ini` file.
-
-### config.ini
-
-| Data               | Desc                                                                                          | Default (if any) |
-|--------------------|-----------------------------------------------------------------------------------------------|------------------|
-| Host               | Where to connect to for the database                                                          | localhost        |
-| User               | Username for the PostgreSQL database                                                          |                  |
-| Password           | Password for the user                                                                         |                  |
-| Database           | The database name to store the pulled prices. The database does not have to exist to be valid | price_tracker    |
-| Tokens             |                                                                                               |                  |
-| - Access           | A token to access the entire database. Pass it through the headers                            |                  |
-| - Write            | A token to add / remove card information. Be careful with it! Pass it through the headers     |                  |
-| - Price            | A token to fetch price information. Pass it through the headers                               |                  |
-| Database Existance | Boolean. If false: creates the database structure                                             | True             |
-<!-- It is assumed that `local/config_setup.py` and `local/main.py` has been ran at least once, otherwise no information will be parsed and the database won't be set up correctly. -->
-
-<!-- `fetcher.py` pulls the Scryfall URL of certain cards from the database and sends a request to the Scryfall API.  It will then parse the price data and insert it into the database, in the table `card_data`.  -->
-
-`api.py` was created with [hypercorn](https://pgjones.gitlab.io/hypercorn/).
+### api.py
+`api.py` is the API for the project, run it with [hypercorn](https://pgjones.gitlab.io/hypercorn/). It is currently the only way to add cards to be tracked at the moment.
 
     hypercorn api:app
 
-Information can, after running, be found in http://127.0.0.1:8000/docs.
+Uvicorn might work, but have not built with it in mind.
 
-<!-- If there is legacy data, `fetcher.py` will transform the data and place it into the PostgreSQL database. If that is the case, please rerun the script as it will not fetch the information for today otherwise.  -->
+Docs are a WIP. Use localhost:8000/docs for help.
+
+### fetcher_card_price.py
+`fetcher_card_price.py` pulls prices from Scryfall, which is powered by TCGPlayer. Once ran, it will parse through the cards that are in the database created in `set_up.py` and send requests to get prices for each of the cards. Those prices are stored in the aformentioned database. All formatting for collector number and set names is pulled from [Scryfall](https://scryfall.com/sets).
+
+Run this script once a day, using `crontab` or any sort of scheduling program.
+
+### fetcher_card_sales.py
+`fetcher_card_sales.py` pulls sales from TCGPlayer, using the same cards that are being tracked. Those prices are placed into the database and can be called via the API or with SQL queries. 
+
+Run this script once a week to every other week, there is not much need to fetch daily.
+
+### logging_details.py
+Logging setup, the data will be placed in the folder `logs/`. Not much to it.
+
+Example `*.log` output
+```log
+2022-11-23 15:46:13,979 | INFO     | add_remove_db_data.py | Now tracking: Thalia, Guardian of Thraben from Innistrad: Crimson Vow
+```
+
 ## Libraries
     arrow
     requests
