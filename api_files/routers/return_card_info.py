@@ -1,5 +1,8 @@
+from pydantic import BaseModel
+from typing import Union
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from api_files.dependencies import select_access
+from api_files.response_models.card_info import CardInfo
 import scripts.connect.to_database as to_db
 import json
 
@@ -18,7 +21,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.get("/", status_code=200, response_class=PrettyJSONResp)
+@router.get("/", status_code=200, response_class=PrettyJSONResp, response_model=CardInfo)
 async def read_items(response: Response):
     conn, cur = to_db.connect_db()
     cur.execute(""" 
@@ -27,7 +30,8 @@ async def read_items(response: Response):
             card_info.info.name,
             card_info.sets.set_full,
             card_info.info.set,
-            card_info.info.id
+            card_info.info.id,
+            card_info.info.uri
         FROM card_info.info
         JOIN card_info.sets
             ON card_info.info.set = card_info.sets.set
@@ -48,6 +52,7 @@ async def read_items(response: Response):
                     'set_full': cards[1],
                     'set': cards[2],
                     'id': cards[3],
+                    'uri': cards[4]
                 }
             )
 
@@ -88,4 +93,3 @@ async def read_item(set: str, id: str, response: Response):
             }
 
         }
-
