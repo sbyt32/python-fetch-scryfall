@@ -46,7 +46,8 @@ def _set_up_db():
     cur.execute("CREATE SCHEMA IF NOT EXISTS card_info")
     log.debug('Creating schema "card_info" if it does not exist')
 
-    # * Store the cards you like to track card_info.info
+    # * Store the cards you like to track card_info.info (this script).
+    # * new_search is for TCG price data, true = merges matching data, false halts the script entirely.
     cur.execute(
     """
         CREATE TABLE IF NOT EXISTS card_info.info(
@@ -55,12 +56,13 @@ def _set_up_db():
             id              text,
             uri             text,
             tcg_id          text,
-            tcg_id_etch     text
+            tcg_id_etch     text,
+            new_search      boolean   
         )
     """)
     log.debug('Creating table "card_info.info" if it does not exist')
 
-    # * Card data
+    # * Card data, where all of the current price information lives. 
     cur.execute(
     """CREATE TABLE IF NOT EXISTS card_data 
     (
@@ -87,8 +89,6 @@ def _set_up_db():
 
     log.debug('Creating table "card_info.sets" if it does not exist')
 
-    # resp = scripts.request_wrapper.send_response('https://api.scryfall.com/sets')['data']
-    # resp = scripts.connect.to_requests_wrapper.send_response('GET','https://api.scryfall.com/sets')['data']
     resp = to_requests.send_response('GET','https://api.scryfall.com/sets')['data']
 
     for sets in resp:

@@ -38,13 +38,13 @@ Example `*.log` output
 ## Libraries
     arrow
     requests
-    psycopg
+    psycopg[binary]
     fastapi
     hypercorn
 
 ## TODO:
 - Server
-    - Add card grouos
+    - Add card groups
     - Manipulate Price Data
     - Consistent import names
     - Committing as little as possible in the sale fetch data.

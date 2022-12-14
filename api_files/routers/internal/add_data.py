@@ -44,18 +44,17 @@ async def add_card_to_track_with_set_id(set: str, id:str):
                 try:
                     resp['tcgplayer_etched_id']
                 except KeyError:
-                    print('hi')
                     tcg_etched_id = None
                 else:
                     tcg_etched_id = resp['tcgplayer_etched_id']
                     
                 add_info_to_postgres = """
-                    INSERT INTO card_info.info (name, set, id, uri, tcg_id, tcg_id_etch)
+                    INSERT INTO card_info.info (name, set, id, uri, tcg_id, tcg_id_etch, new_search)
 
-                    VALUES (%s,%s,%s,%s,%s,%s)
+                    VALUES (%s,%s,%s,%s,%s,%s,%s)
                     """
                 # ? Uncomment below in production.
-                cur.execute(add_info_to_postgres, (resp['name'], resp['set'], resp['collector_number'], resp['id'], resp['tcgplayer_id'], tcg_etched_id))
+                cur.execute(add_info_to_postgres, (resp['name'], resp['set'], resp['collector_number'], resp['id'], resp['tcgplayer_id'], tcg_etched_id, True))
                 conn.commit()
 
                 log.info(f'Now tracking: {resp["name"]} from {resp["set_name"]}')

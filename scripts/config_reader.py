@@ -7,7 +7,7 @@ log = logging.getLogger()
 
 def config_reader(section:str, cfg:str):
     """A way to read and parse the different config files.
-    \nExample = `config_reader('CONNECT', 'cfg')
+    \nExample = `config_reader('CONNECT', 'cfg')`
 | input   | desc                       |
 |---------|----------------------------|
 | section | header to get in .ini file |
