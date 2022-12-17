@@ -15,6 +15,6 @@ __pycache__
 config.ini
 .old
 sample.py
-add_tcg.py
 config_files/
 tests
+notes.md

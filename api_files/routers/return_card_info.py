@@ -31,7 +31,7 @@ async def read_items(response: Response):
             card_info.sets.set_full,
             card_info.info.set,
             card_info.info.id,
-            card_info.info.uri
+            card_info.info.groups
         FROM card_info.info
         JOIN card_info.sets
             ON card_info.info.set = card_info.sets.set
@@ -52,7 +52,7 @@ async def read_items(response: Response):
                     'set_full': cards[1],
                     'set': cards[2],
                     'id': cards[3],
-                    'uri': cards[4]
+                    'groups': cards[4]
                 }
             )
 
@@ -93,3 +93,34 @@ async def read_item(set: str, id: str, response: Response):
             }
 
         }
+# Get cards by groups
+@router.get("/{group}")
+async def find_groups(group: str):
+    conn, cur = to_db.connect_db()
+    cur.execute(""" 
+        
+        SELECT   
+            card_info.info.name,
+            card_info.sets.set_full,
+            card_info.info.id
+        FROM card_info.info
+        JOIN card_info.sets
+            ON card_info.info.set = card_info.sets.set
+        WHERE %s = ANY (card_info.info.groups)
+        """,
+        (group,)
+        )
+    resp = cur.fetchall()
+    if resp == ():
+        return {}
+    else:
+        card_data = []
+        for cards in resp:
+            card_data.append(
+                {
+                    'name': cards[0],
+                    'set_full': cards[1],
+                    'id': cards[2]
+                }
+            )
+        return card_data
