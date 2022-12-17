@@ -57,7 +57,8 @@ def _set_up_db():
             uri             text,
             tcg_id          text,
             tcg_id_etch     text,
-            new_search      boolean   
+            groups          text[],
+            new_search      boolean
         )
     """)
     log.debug('Creating table "card_info.info" if it does not exist')
