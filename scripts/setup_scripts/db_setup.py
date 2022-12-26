@@ -139,6 +139,38 @@ def _set_up_db():
         )
         """
     )
+
+    # * This will create the inventory related information
+    thingstodo = [("""
+            CREATE TYPE condition AS ENUM (
+                'NM',
+                'LP',
+                'MP',
+                'HP',
+                'DMG',
+                'SEAL'
+            )
+            """, "Condition"), (
+            """ 
+            CREATE TYPE variant AS ENUM (
+                'Normal',
+                'Foil',
+                'Etched'
+            )
+            """, "Variant")
+            ]
+
+    with conn.transaction() as tx1:
+        for operation in thingstodo:
+            try:
+                with conn.transaction():                
+                    tx1.connection.execute(operation[0])
+            except psycopg.errors.DuplicateObject:
+                print(f"Type '{operation[1]}' already exists")
+            else:
+                print(f"Type '{operation[1]}' created")
+
+                
     conn.commit()
     conn.close()
 
