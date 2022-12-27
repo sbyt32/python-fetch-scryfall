@@ -177,7 +177,8 @@ def _set_up_db():
         """
         CREATE TABLE IF NOT EXISTS inventory
         (
-            tcg_id          text NOT NULL,
+            add_date        date,
+            tcg_id          text        NOT NULL,
             qty             int,
             buy_price       float(2),
             card_condition  condition,
