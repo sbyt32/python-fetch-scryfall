@@ -1,17 +1,8 @@
-from pydantic import BaseModel
-from typing import Union
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from api_files.dependencies import select_access
 from api_files.response_models.card_info import CardInfo
+from api_files.response_class.pretty import PrettyJSONResp
 import scripts.connect.to_database as to_db
-import json
-
-
-class PrettyJSONResp(Response):
-    media_type = "application/json"
-
-    def render(self, content) -> bytes:
-        return json.dumps(content,ensure_ascii=False, allow_nan=False,indent=3,separators=(", ", ": ")).encode('utf-8')
 
 
 router = APIRouter(
