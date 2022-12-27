@@ -2,7 +2,7 @@ import scripts.connect.to_database as to_db
 from fastapi import APIRouter, Depends
 from api_files.dependencies import price_access
 from api_files.exceptions import RootException
-from api_files.routers.pretty import PrettyJSONResp
+from api_files.response_class.pretty import PrettyJSONResp
 
 router = APIRouter(
     prefix="/sales",

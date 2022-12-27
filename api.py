@@ -11,7 +11,7 @@ import logging
 # import logging_details
 # logging_details.log_setup()
 log = logging.getLogger()
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 # * Accessing the database should require the select_access token
 app = FastAPI(dependencies=[Depends(select_access)])

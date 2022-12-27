@@ -35,9 +35,7 @@ async def read_items(response: Response):
         FROM card_info.info
         JOIN card_info.sets
             ON card_info.info.set = card_info.sets.set
-        """,
-
-        # (set, id)
+        """
         )
     resp = cur.fetchall()
     if resp == ():

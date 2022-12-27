@@ -5,7 +5,7 @@ from psycopg.errors import DatetimeFieldOverflow
 from api_files.dependencies import price_access
 from typing import Union
 import scripts.connect.to_database as to_db
-from api_files.routers.pretty import PrettyJSONResp
+from api_files.response_class.pretty import PrettyJSONResp
 import logging
 import re
 log = logging.getLogger()

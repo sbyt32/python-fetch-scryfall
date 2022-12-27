@@ -113,6 +113,7 @@ def _set_up_db():
     cur.execute(
         """ CREATE TABLE IF NOT EXISTS card_info.groups
         (
+            tcg_id  text,        
             id      text        NOT NULL,
             set     varchar(12) NOT NULL,
             groups  text[]

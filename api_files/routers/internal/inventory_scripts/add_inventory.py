@@ -1,16 +1,14 @@
 from fastapi import APIRouter
-from api_files.response_models.add_inventory_model import AddInventory
+from api_files.request_models.add_inventory_model import AddInventory
 from psycopg.rows import dict_row
 import scripts.connect.to_database as to_db
 import scripts.connect.to_requests_wrapper as to_requests_wrapper
 import logging
 log = logging.getLogger()
 
-router = APIRouter(
-    tags=["Manage your inventory"],
-    )
+router = APIRouter()
 
-@router.post("/add/inventory")
+@router.post("/add")
 async def add_card_groups_with_set_id(inventory: AddInventory):
     if inventory.set and inventory.col_num and not inventory.tcg_id:
         resp = to_requests_wrapper.send_response("GET", f'https://api.scryfall.com/cards/{inventory.set.lower()}/{inventory.col_num.lower()}')
