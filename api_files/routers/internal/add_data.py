@@ -1,3 +1,4 @@
+from typing import Union
 from fastapi import APIRouter, Depends, HTTPException
 from api_files.dependencies import write_access
 from psycopg.rows import dict_row
@@ -109,3 +110,5 @@ async def add_card_groups_with_set_id(card_group: Card_Groups):
         log.error(text_resp)
 
     return text_resp
+
+

@@ -160,17 +160,29 @@ def _set_up_db():
             """, "Variant")
             ]
 
+    log.debug('Creating types for condition and variants')
     with conn.transaction() as tx1:
         for operation in thingstodo:
             try:
                 with conn.transaction():                
                     tx1.connection.execute(operation[0])
             except psycopg.errors.DuplicateObject:
-                print(f"Type '{operation[1]}' already exists")
+                log.debug(f"Type '{operation[1]}' already exists")
             else:
-                print(f"Type '{operation[1]}' created")
+                log.debug(f"Type '{operation[1]}' created")
 
-                
+    log.debug('Creating table "inventory" if it does not exist')
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS inventory
+        (
+            tcg_id          text NOT NULL,
+            qty             int,
+            buy_price       float(2),
+            card_condition  condition,
+            card_variant    variant
+        )
+        """)
     conn.commit()
     conn.close()
 
