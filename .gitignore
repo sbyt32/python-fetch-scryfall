@@ -17,4 +17,4 @@ config.ini
 sample.py
 config_files/
 tests
-notes.md
+psql_notes.md

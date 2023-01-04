@@ -1,12 +1,10 @@
 import scripts.connect.to_database as to_db
 from fastapi import APIRouter, Depends, Response, status
 from psycopg.rows import dict_row
-from api_files.dependencies import price_access
 from api_files.exceptions import RootException
 
 router = APIRouter(
     prefix="/sales",
-    tags=["Fetch recent sale data from TCGP"]
 )
 
 @router.get("/", status_code=400)
@@ -14,7 +12,7 @@ async def root_access():
     raise RootException
 
 @router.get("/card/{tcg_id}", description="Get the most recent sales from this card. Updates every week")
-async def filler_name(tcg_id:str, response: Response):
+async def get_tcg_sales(tcg_id:str, response: Response):
     cur = to_db.connect_db(row_factory = dict_row)[1]
 
     cur.execute("""

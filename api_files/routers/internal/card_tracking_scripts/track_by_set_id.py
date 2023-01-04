@@ -9,7 +9,7 @@ router = APIRouter()
 
 # Add some cards with the set and ID of the card
 @router.post("/add/{set}/{coll_num}")
-async def add_card_to_track_with_set_id(set: str, coll_num:str):
+async def add_card_to_track(set: str, coll_num:str):
 
     resp = to_requests_wrapper.send_response('GET',f"https://api.scryfall.com/cards/search?q=set:{set}+cn:{coll_num}")
 

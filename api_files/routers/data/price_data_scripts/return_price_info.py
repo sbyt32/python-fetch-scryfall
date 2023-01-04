@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 @router.get("/", status_code=200, response_class=PrettyJSONResp)
-async def read_items():
+async def root_access():
     raise HTTPException(status_code=400, detail="Buddy this ain't the right way to get the price data.")
 
 @router.get("/by/{date}",  description="Get the price data for the a certain day. YYYY-MM-DD format.")

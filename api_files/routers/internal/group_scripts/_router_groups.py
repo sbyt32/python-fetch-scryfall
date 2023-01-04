@@ -6,7 +6,7 @@ log = logging.getLogger()
 
 router = APIRouter(
     prefix="/groups",
-    tags=["Manage your card groupings"],
+    tags=["Card Groups"],
 )
 router.include_router(add_groups.router)
 router.include_router(remove_groups.router)

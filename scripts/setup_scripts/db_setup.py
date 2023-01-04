@@ -109,14 +109,15 @@ def _set_up_db():
             log.debug(f"Not inserting {sets['name']}: Set is digital-only.")
 
     # * This creates the card_info.groups table, which organizes popular groupings, such as "fetchland" or "shockland".
+    # ? Desc is not a valid column name because of DESC(ending) sorting
     log.debug('Creating table "card_info.groups" if it does not exist')
     cur.execute(
         """ CREATE TABLE IF NOT EXISTS card_info.groups
         (
-            tcg_id  text,        
-            id      text        NOT NULL,
-            set     varchar(12) NOT NULL,
-            groups  text[]
+            group_name  text    NOT NULL,        
+            description text    NOT NULL,
+
+            UNIQUE(group_name)
         )
         """
     )
