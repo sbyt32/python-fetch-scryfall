@@ -14,11 +14,9 @@ if __name__ == "__main__":
         cfg['db_exists']
     except KeyError:
         log.error("Cannot confirm that the database exist. Does config_files/config.ini exist?")
-        raise SystemExit
     else:
         if not bool(cfg['db_exists']) == True:
             log.error("Database does not exist according to config_files/config.ini.")
-            raise SystemExit()
         else:
             log.info(f"Fetching sale data on {arrow.utcnow().format('YYYY-MM-DD')}")
             fetch_tcg_prices()

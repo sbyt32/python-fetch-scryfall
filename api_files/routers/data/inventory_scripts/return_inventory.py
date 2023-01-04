@@ -4,13 +4,13 @@ from api_files.response_models.card_info import CardInfo
 from psycopg.rows import dict_row
 import scripts.connect.to_database as to_db
 
-router = APIRouter(
-    prefix="/inventory",
-    tags=["Get your inventory", "Manage your Inventory"],
-    dependencies=[Depends(select_access)]
+router = APIRouter()
+
+@router.get(
+    path="/",
+    description="Return your entire inventory."
 )
 
-@router.get("/")
 async def get_inventory():
     conn, cur = to_db.connect_db(row_factory = dict_row)
 

@@ -1,17 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from api_files.dependencies import select_access
+from fastapi import APIRouter, HTTPException, Response, status
 from api_files.response_models.card_info import CardInfo
 from api_files.response_class.pretty import PrettyJSONResp
 import scripts.connect.to_database as to_db
 
-
 router = APIRouter(
-    prefix="/card",
-    tags=["Get some card info"],
-    dependencies=[Depends(select_access)],
-    responses={404: {"description": "Not found"}},
+    prefix="/search"
 )
 
+# Return all cards
 @router.get("/", status_code=200, response_class=PrettyJSONResp, response_model=CardInfo)
 async def read_items(response: Response):
     conn, cur = to_db.connect_db()
@@ -51,9 +47,11 @@ async def read_items(response: Response):
             "data"      : card_data
         }
 
-
-@router.get("/{set}/{id}")
-async def read_item(set: str, id: str, response: Response):
+# Filter for cards by their set + id combo
+@router.get("/{set}/{col_num}",
+    description="Look for a specific card based on that cards set + collector number"
+    )
+async def read_item(set: str, col_num: str, response: Response):
     conn, cur = to_db.connect_db()
     cur.execute(""" 
         
@@ -82,9 +80,9 @@ async def read_item(set: str, id: str, response: Response):
             }
 
         }
-# Get cards by groups
+# Filter for cards by their grouping.
 @router.get("/{group}")
-async def find_groups(group: str):
+async def find_by_group(group: str):
     conn, cur = to_db.connect_db()
     cur.execute(""" 
         

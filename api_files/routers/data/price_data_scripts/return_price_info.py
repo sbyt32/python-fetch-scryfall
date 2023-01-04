@@ -12,9 +12,6 @@ log = logging.getLogger()
 
 router = APIRouter(
     prefix="/price",
-    dependencies=[Depends(price_access)],
-    tags=["Fetch card prices"],
-    responses={404: {"description": "Not found"}},
 )
 
 @router.get("/", status_code=200, response_class=PrettyJSONResp)

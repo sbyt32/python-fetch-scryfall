@@ -4,9 +4,6 @@ from api_files.routers.internal.card_tracking_scripts import _router_tracking
 from api_files.routers.internal.group_scripts import _router_groups
 from api_files.routers.internal.inventory_scripts import _router_inventory
 
-import logging
-log = logging.getLogger()
-
 router = APIRouter(    
     dependencies=[Depends(write_access)]
 )
