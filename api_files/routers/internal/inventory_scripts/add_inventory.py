@@ -12,6 +12,7 @@ router = APIRouter()
 @router.post("/add")
 async def add_card_groups_with_set_id(inventory: AddInventory):
     current_date = arrow.utcnow().date()
+    # ? If you have the set and collector number, but not the TCG_ID, it will pull that.
     if inventory.set and inventory.col_num and not inventory.tcg_id:
         resp = to_requests_wrapper.send_response("GET", f'https://api.scryfall.com/cards/{inventory.set.lower()}/{inventory.col_num.lower()}')
         if inventory.card_variant == "Etched":
@@ -100,3 +101,7 @@ async def add_card_groups_with_set_id(inventory: AddInventory):
         inventory_check = cur.fetchone()
         conn.commit()
         return inventory_check
+
+@router.delete('/delete')
+async def remove_inventory():
+    pass

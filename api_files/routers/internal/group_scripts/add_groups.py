@@ -43,6 +43,6 @@ async def add_card_groups_with_set_id(card_group: CardGroups):
     # * Just in case, I'm not too sure what would trigger this?
     else:
         text_resp = f"Uncertain error returned. Logging response to look over later."
-        log.error(text_resp)
+        log.error(card_group)
 
     return text_resp
