@@ -1,21 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from api_files.dependencies import write_access
-from api_files.routers.internal import add_data, remove_data
 import scripts.connect.to_database as to_db
 import scripts.connect.to_requests_wrapper as to_requests_wrapper
 import logging
 log = logging.getLogger()
 
-router = APIRouter(
-    prefix="/admin",
-    dependencies=[Depends(write_access)],
-    )
-router.include_router(add_data.router)
-router.include_router(remove_data.router)
-
-# ? Should internal files 
-
-# Add a card
+router = APIRouter()
 @router.post(
     "/add/{url}"
     )

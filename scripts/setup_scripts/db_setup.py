@@ -109,13 +109,15 @@ def _set_up_db():
             log.debug(f"Not inserting {sets['name']}: Set is digital-only.")
 
     # * This creates the card_info.groups table, which organizes popular groupings, such as "fetchland" or "shockland".
+    # ? Desc is not a valid column name because of DESC(ending) sorting
     log.debug('Creating table "card_info.groups" if it does not exist')
     cur.execute(
         """ CREATE TABLE IF NOT EXISTS card_info.groups
         (
-            id      text        NOT NULL,
-            set     varchar(12) NOT NULL,
-            groups  text[]
+            group_name  text    NOT NULL,        
+            description text    NOT NULL,
+
+            UNIQUE(group_name)
         )
         """
     )
@@ -139,6 +141,51 @@ def _set_up_db():
         )
         """
     )
+
+    # * This will create the inventory related information
+    thingstodo = [("""
+            CREATE TYPE condition AS ENUM (
+                'NM',
+                'LP',
+                'MP',
+                'HP',
+                'DMG',
+                'SEAL'
+            )
+            """, "Condition"), (
+            """ 
+            CREATE TYPE variant AS ENUM (
+                'Normal',
+                'Foil',
+                'Etched'
+            )
+            """, "Variant")
+            ]
+
+    log.debug('Creating types for condition and variants')
+    with conn.transaction() as tx1:
+        for operation in thingstodo:
+            try:
+                with conn.transaction():                
+                    tx1.connection.execute(operation[0])
+            except psycopg.errors.DuplicateObject:
+                log.debug(f"Type '{operation[1]}' already exists")
+            else:
+                log.debug(f"Type '{operation[1]}' created")
+
+    log.debug('Creating table "inventory" if it does not exist')
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS inventory
+        (
+            add_date        date,
+            tcg_id          text        NOT NULL,
+            qty             int,
+            buy_price       float(2),
+            card_condition  condition,
+            card_variant    variant
+        )
+        """)
     conn.commit()
     conn.close()
 

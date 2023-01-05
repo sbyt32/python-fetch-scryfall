@@ -5,20 +5,17 @@ from psycopg.errors import DatetimeFieldOverflow
 from api_files.dependencies import price_access
 from typing import Union
 import scripts.connect.to_database as to_db
-from api_files.routers.pretty import PrettyJSONResp
+from api_files.response_class.pretty import PrettyJSONResp
 import logging
 import re
 log = logging.getLogger()
 
 router = APIRouter(
     prefix="/price",
-    dependencies=[Depends(price_access)],
-    tags=["Fetch card prices"],
-    responses={404: {"description": "Not found"}},
 )
 
 @router.get("/", status_code=200, response_class=PrettyJSONResp)
-async def read_items():
+async def root_access():
     raise HTTPException(status_code=400, detail="Buddy this ain't the right way to get the price data.")
 
 @router.get("/by/{date}",  description="Get the price data for the a certain day. YYYY-MM-DD format.")
