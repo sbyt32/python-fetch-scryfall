@@ -1,0 +1,5 @@
+# * The purpose of this folder is to have a folder that will contain all the logging data as needed.
+# Ignore everything in this file
+*
+# Except this file
+!.gitignore

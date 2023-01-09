@@ -1,0 +1,20 @@
+# This should just be a general folder for all pulled cards
+*/__pycache__
+logs/*.log
+logs/*/*.log
+
+data/*.ndjson
+data/tracking
+*/*/__pycache__
+variables.py
+config.ini
+data/tracking_old
+sql_joins.jpg
+psql.md
+__pycache__
+config.ini
+.old
+sample.py
+config_files/
+tests
+psql_notes.md
